@@ -1,4 +1,4 @@
-// Server side header file
+// Server side header file with server logic 
 
 #ifndef SERVER_H
 #define SERVER_H
@@ -9,16 +9,20 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <signal.h>
+#include <unistd.h>
 
-#include "../Libs/Tickets_list.h"
-#include "../Libs/Server_login.h"
+#include "Tickets_list.h"
+#include "Server_login.h"
+#include "Server_handler.h"
 
 #define DEFAULT_PROTOCOL 0
-#define DEFAULT_PORT    1025
+#define DEFAULT_PORT     1025
+#define BUFFER_SIZE      1024
 
 int server_start(int port);     // funcion that starts the server opening a socket and return it 
 
-int server_loop(int socket);    // function that handle the server loop
+int server_loop(int server_fd);    // function that handle the server loop
 
 
 #endif
