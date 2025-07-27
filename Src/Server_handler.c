@@ -70,7 +70,7 @@ int Ticket_handler(int client_fd, struct TicketNode *head, const int buffer_size
     }
     t.status = atoi(token);
 
-   add_ticket(head, t);  // Add the ticket to the linked list
+    add_ticket(head, t);  // Add the ticket to the linked list
 
     // buffer cleaning and return a positive code 
     free(buffer);

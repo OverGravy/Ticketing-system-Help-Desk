@@ -28,7 +28,7 @@ int main() {
     }
 
     // randomize the number of client to be launch
-    int num_clients = rand() % 5 + 1; // Random number between 0, 5
+    int num_clients =  1;//rand() % 5 + 1; // Random number between 0, 5
 
     // main maintains an array of all clients pids
     int Std_client_pids[num_clients];
@@ -37,17 +37,22 @@ int main() {
         Std_client_pids[i] = fork();
         if(Std_client_pids[i] == 0){
             printf("Client %d: starting client process...", i);
-            if(client_loop(i) == -1){
-                printf("Client %d: failed to start", i);
+            int client_fd = client_start(DEFAULT_PORT);
+
+            // check if the client started correctlys
+            if(client_fd < 0){
+                printf("Client %d: failed to connect to start", i);
+                exit(EXIT_FAILURE);
             }
+
+            client_loop(i, client_fd);
+            close(client_fd);
+            exit(EXIT_SUCCESS);
+            
         } else if(Std_client_pids[i] < 0) {
             printf("Main: Failed to fork standard client %d\n", i);
         }
     }
-
-    // DOVRO SPAWNARE ANCHE GLI AGENTI
-
-    // QUA DOVRO ASPETTARE LA MORTE DEI FIGLIO O FARE QUALCOSA IN GENERALE
     
     return 0; // Return 0 to indicate successful execution
 }

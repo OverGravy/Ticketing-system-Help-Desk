@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "stdlib.h": "c",
-        "tickets_list.h": "c"
+        "tickets_list.h": "c",
+        "std_client.h": "c"
     }
 }
