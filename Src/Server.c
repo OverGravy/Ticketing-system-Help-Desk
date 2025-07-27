@@ -27,8 +27,6 @@ int server_start(int port){
         return -1;
     }
 
-    signal(SIGCHLD, SIG_IGN); // ignore childs death 
-
    return server_fd;
 }
 
@@ -40,6 +38,8 @@ int server_loop(int server_fd){
     socklen_t client_len = sizeof(client_addr);
 
     ssize_t received;
+
+    signal(SIGCHLD, SIG_IGN); // ignore childs death 
 
     // create Tickets list pointer
     struct TicketNode* tickets_list = NULL;
@@ -58,7 +58,8 @@ int server_loop(int server_fd){
         // create a child process to handle the connection
         if(fork() == 0){
 
-            if(Ticket_handler(client_fd, tickets_list, BUFFER_SIZE) < 0){
+            // check if the Ticket_handler function return 0, if so the ticket is memorized
+            if(Ticket_handler(client_fd, tickets_list, BUFFER_SIZE) == 0){
                 printf("Server: ticket memorized");
             }else{
                 printf("Server: an error occurd while memorizing a ticket");
@@ -72,6 +73,6 @@ int server_loop(int server_fd){
             perror("Server: unable to fork and handle the connection");
             close(client_fd);
         }
-        return 0;
     }
+    return 0;
 }
