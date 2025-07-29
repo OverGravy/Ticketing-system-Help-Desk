@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 // Define the structure to rappresent a date
@@ -22,6 +24,7 @@ struct Ticket {
    int agent_id;                    // -1: no agent assigned
 };
 
+// Define the structure to represent a packet that will be sent over the network
 struct Packet
 {
    int type;   // this field provide information on what the oparation is 

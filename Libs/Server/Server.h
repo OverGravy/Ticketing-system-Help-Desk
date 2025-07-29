@@ -12,9 +12,8 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "Tickets_list.h"
-#include "Server_login.h"
-#include "Server_handler.h"
+#include "Request_handler.h"
+#include "Login_handler.h"
 
 #define DEFAULT_PROTOCOL 0
 #define DEFAULT_PORT     1025

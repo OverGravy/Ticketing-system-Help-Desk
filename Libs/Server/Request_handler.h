@@ -12,8 +12,8 @@
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
-#include "Tickets_list.h"
+#include "../Tickets_list.h"
 
-int Ticket_handler(int client_fd, struct TicketNode *head, const int buffer_size);
+int Request_handler(int client_fd, struct TicketNode *head, const int buffer_size);
 
 #endif

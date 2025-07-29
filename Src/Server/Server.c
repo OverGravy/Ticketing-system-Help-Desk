@@ -1,5 +1,5 @@
-#include "../Libs/Server.h"
-#include "../Libs/Tickets_list.h"
+#include "../../Libs/Server/Server.h"
+#include "../../Libs/Tickets_list.h"
 
 int server_start(int port){
 
@@ -63,10 +63,10 @@ int server_loop(int server_fd){
         if(request_handler == 0){
 
             // check if the Ticket_handler function return 0, if so the ticket is memorized
-            if(Ticket_handler(client_fd, tickets_list, BUFFER_SIZE) == 0){
-                printf("Server: ticket memorized\n");
+            if(Request_handler(client_fd, tickets_list, BUFFER_SIZE) == 0){
+                printf("Server: Request handled correcly\n");
             }else{
-                printf("Server: an error occurd while memorizing a ticket\n");
+                printf("Server: An error occurd while handling the request\n");
             }    
 
             // close the socket and terminate the child that handled the connection
@@ -74,7 +74,7 @@ int server_loop(int server_fd){
             exit (/* EXIT_SUCCESS */ 0); 
 
         }else if(request_handler<0) {
-            perror("Server: unable to fork and handle the connection\n");
+            perror("Server: Unable to fork and handle the connection\n");
             close(client_fd);
         }
         exit(EXIT_SUCCESS); // exit the parent process to avoid creating a zombie process

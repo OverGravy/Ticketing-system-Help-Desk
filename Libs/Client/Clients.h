@@ -13,8 +13,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int client_start( int port);
+#include "../Ticket.h"
+
+// function that starts the client side with the right server parameter
+int client_start(int port, in_addr_t server_ip_addr);
 
 int client_loop(int id, int client_fd); // id identify witch client is writing on the terminal
+
+int agent_client_loop(int id, int client_fd); 
+
 
 #endif

@@ -9,7 +9,7 @@
 
 // Define the structure that represents a node of the linked list
 struct TicketNode {
-    struct Ticket_core ticket;          // the ticket data
+    struct Ticket ticket;          // the ticket data
     struct TicketNode* next;       // pointer to the next node in the list
 };
 

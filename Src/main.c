@@ -4,9 +4,8 @@
 #include <time.h>
 #include <sys/wait.h>
 
-#include "../Libs/Server.h"
-#include "../Libs/Std_client.h"
-#include "../Libs/Agent_client.h" 
+#include "../Libs/Server/Server.h"
+#include "../Libs/Client/Clients.h"
 
 int main() {
 
@@ -43,7 +42,7 @@ int main() {
         Std_client_pids[i] = fork();
         if(Std_client_pids[i] == 0){
             printf("Client %d: starting client process...\n", i);
-            int client_fd = client_start(DEFAULT_PORT);
+            int client_fd = client_start(DEFAULT_PORT, INADDR_LOOPBACK);
 
             // check if the client started correctlys
             if(client_fd < 0){
