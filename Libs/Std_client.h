@@ -10,6 +10,8 @@
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int client_start( int port);
 

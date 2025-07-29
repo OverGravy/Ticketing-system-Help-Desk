@@ -49,13 +49,13 @@ int client_loop(int id,int client_fd){
     sleep(1);
     
     char buffer[256];
-    printf("Client %d: Sending message to the server", id);
+    printf("Client %d: Sending message to the server\n", id);
     strcpy(buffer, "title|description|01/01/2023|1"); 
 
     // send the message to the server
     int bytes_sent = send(client_fd, buffer, strlen(buffer), 0);
     if (bytes_sent < 0) {
-        perror("Client: Error sending message");
+        printf("Client: Error sending message\n");
         return -1;
     }
 

@@ -1,40 +1,25 @@
-# Makefile for Ticketing-system-Help-Desk
-
-# Project settings
-APP_NAME = ticketing-system
-SRC_DIR = src
-BUILD_DIR = obj
-BIN_DIR = bin
-
-# Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -O2
-LDFLAGS =
+CFLAGS = -Wall -Wextra -pedantic -std=c99 -D_POSIX_C_SOURCE=200809L -g
 
-# Source and object files
-SRCS := $(wildcard $(SRC_DIR)/*.c)
-OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
+SRC_DIR := ./Src
+OBJ_DIR := ./Obj
+BIN_DIR := ./Bin
 
-# Default target
-all: $(BIN_DIR)/$(APP_NAME)
+SOURCES := $(shell find $(SRC_DIR) -name '*.c')
+OBJECTS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SOURCES))
 
-# Build binary
-$(BIN_DIR)/$(APP_NAME): $(OBJS) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LDFLAGS)
+TARGET = TiketingSystem
+BIN_TARGET = $(BIN_DIR)/$(TARGET)
 
-# Compile source files to object files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+all: $(BIN_TARGET)
+
+$(BIN_TARGET): $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) -o $(BIN_TARGET) $(LDFLAGS) -lm
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Create build and bin directories if they don't exist
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-
-$(BIN_DIR):
-	mkdir -p $(BIN_DIR)
-
-# Clean build artifacts
 clean:
-	rm -rf $(BUILD_DIR) $(BIN_DIR)
+	rm -f $(OBJECTS) $(BIN_TARGET)
 
 .PHONY: all clean

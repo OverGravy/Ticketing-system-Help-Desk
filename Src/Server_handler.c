@@ -5,6 +5,7 @@ int Ticket_handler(int client_fd, struct TicketNode *head, const int buffer_size
     // Dinamic allocation of buffer cause i pass buffer_size as parameter
     char* buffer = malloc(buffer_size);
     if (buffer == NULL) {
+        perror("Ticket_handler: Memory allocation failed");
         return -1;
     }
 
@@ -12,6 +13,7 @@ int Ticket_handler(int client_fd, struct TicketNode *head, const int buffer_size
     int character = read(client_fd, buffer, buffer_size - 1);
     if (character <= 0) {
         free(buffer);
+        perror("Ticket_handler: Error reading from socket or connection closed");
         return -1;
     }
 
@@ -24,6 +26,7 @@ int Ticket_handler(int client_fd, struct TicketNode *head, const int buffer_size
     token = strtok(buffer, ",");
     if (!token) {                 // every time the tok failed i have to free the buffer and return -1 as an error
         free(buffer);
+        perror("Ticket_handler: Error parsing ticket title");
         return -1;
     }
     strncpy(t.title, token, sizeof(t.title) - 1);
@@ -33,6 +36,7 @@ int Ticket_handler(int client_fd, struct TicketNode *head, const int buffer_size
     token = strtok(NULL, ",");
     if (!token) {
         free(buffer);
+        perror("Ticket_handler: Error parsing ticket description");
         return -1;
     }
     strncpy(t.description, token, sizeof(t.description) - 1);
@@ -42,12 +46,14 @@ int Ticket_handler(int client_fd, struct TicketNode *head, const int buffer_size
     token = strtok(NULL, ",");
     if (!token) {
         free(buffer);
+        perror("Ticket_handler: Error parsing ticket creation date");
         return -1;
     }
 
     t.creation_date = malloc(sizeof(struct Date));
     if (t.creation_date == NULL) {                  // in case the malloc fail i have to free the buffer
         free(buffer);
+        perror("Ticket_handler: Memory allocation for creation date failed");
         return -1;
     }
     sscanf(token, "%d/%d/%d", &t.creation_date->day, &t.creation_date->month, &t.creation_date->year);
@@ -57,6 +63,7 @@ int Ticket_handler(int client_fd, struct TicketNode *head, const int buffer_size
     if (!token) {
         free(buffer);
         free(t.creation_date);
+        perror("Ticket_handler: Error parsing ticket priority");
         return -1;
     }
     t.priority = atoi(token);
@@ -66,6 +73,7 @@ int Ticket_handler(int client_fd, struct TicketNode *head, const int buffer_size
     if (!token) {
         free(buffer);
         free(t.creation_date);
+        perror("Ticket_handler: Error parsing ticket status");
         return -1;
     }
     t.status = atoi(token);

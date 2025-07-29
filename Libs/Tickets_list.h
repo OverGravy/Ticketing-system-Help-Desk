@@ -1,29 +1,15 @@
 #ifndef TICKETS_LIST_H  
 #define TICKETS_LIST_H
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-// Define the structure to rappresent a date
-struct Date {
-    int day;
-    int month;
-    int year;
-};
-
-// Define the structure to represent a ticket
-struct Ticket {
-   char title[20];
-   char description[50];
-   struct Date* creation_date;
-   int priority;
-   int status;                      // -1: closed 0: ongoing, 1: open
-   int agent_id;                    // -1: no agent assigned
-};
+#include "Ticket.h"
 
 // Define the structure that represents a node of the linked list
 struct TicketNode {
-    struct Ticket ticket;          // the ticket data
+    struct Ticket_core ticket;          // the ticket data
     struct TicketNode* next;       // pointer to the next node in the list
 };
 
