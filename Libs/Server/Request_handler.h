@@ -13,7 +13,9 @@
 #include <unistd.h>
 #include <string.h>
 #include "../Tickets_list.h"
+#include "./Login_handler.h"
+#include "../Terminal_com.h"
 
-int Request_handler(int client_fd, struct TicketNode *head, const int buffer_size);
+int Request_handler(int client_fd, struct TicketNode* tickets_list, int buffer_size, struct AgentNode* agent_list); // Function that handle the request from the client
 
 #endif

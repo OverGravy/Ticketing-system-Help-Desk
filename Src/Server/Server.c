@@ -46,6 +46,8 @@ int server_loop(int server_fd){
 
     // create Tickets list pointer
     struct TicketNode* tickets_list = NULL;
+    // create Agents list pointer
+    struct AgentNode *agent_list = NULL;
 
     while(1){ // TROVA UN CONDIZIONE SERIA
 
@@ -63,9 +65,7 @@ int server_loop(int server_fd){
         if(request_handler == 0){
 
             // check if the Ticket_handler function return 0, if so the ticket is memorized
-            if(Request_handler(client_fd, tickets_list, BUFFER_SIZE) == 0){
-                printf("Server: Request handled correcly\n");
-            }else{
+            if(Request_handler(client_fd, tickets_list, BUFFER_SIZE, agent_list) != 0){
                 printf("Server: An error occurd while handling the request\n");
             }    
 
@@ -74,7 +74,7 @@ int server_loop(int server_fd){
             exit (/* EXIT_SUCCESS */ 0); 
 
         }else if(request_handler<0) {
-            perror("Server: Unable to fork and handle the connection\n");
+            printf("Server: Unable to fork and handle the connection\n");
             close(client_fd);
         }
         exit(EXIT_SUCCESS); // exit the parent process to avoid creating a zombie process

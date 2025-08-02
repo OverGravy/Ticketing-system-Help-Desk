@@ -142,14 +142,13 @@ int agent_client_loop(int id,int client_fd){   // the id is fondamental to ident
         return -1;
     }
 
-    printf("Agent %d: Log in request sent successfully\n", id);
-
     read(client_fd, &key, sizeof(key));
     if (key < 0) {
         printf("Agent %d: Error receiving key from server\n", id);
         return -1;
     }
-    printf("Agent %d: Received key from server: %d\n", id, key);
+
+    printf("Agent %d: Log-in succesfully happen with key -> %d\n", id, key);
 
     return 0; // Return 0 to indicate success
     

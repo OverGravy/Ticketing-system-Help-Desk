@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 #include "Request_handler.h"
-#include "Login_handler.h"
+#include "../Terminal_com.h"
 
 #define DEFAULT_PROTOCOL 0
 #define DEFAULT_PORT     1025

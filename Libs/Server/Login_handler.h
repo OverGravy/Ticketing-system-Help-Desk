@@ -6,18 +6,23 @@
 #include <string.h>
 #include <unistd.h>
 
-struct Login {
-    char username[50];
-    char password[50];
+#include "../Terminal_com.h"
+
+// struct that memorizes the agent information
+struct Agent {
+    int client_id;
+    int password
 };
 
-struct Login_Node {
-    struct Login login;
-    struct Login_Node* next;
+// struct that is part of a list of agents
+struct AgentNode {
+    struct Agent agent;
+    struct AgentNode* next;
 };
 
-int Singing_in(int id);
+// function that adds the agent to the list and create a key for the user and returns it, if the agent is already in the list it returns 0 in case of error returns 0
+int Singing_in(int id, struct AgentNode* head);
 
-int Logging_in(int id);
+int Logging_in(int id, struct AgentNode* head);
 
 #endif

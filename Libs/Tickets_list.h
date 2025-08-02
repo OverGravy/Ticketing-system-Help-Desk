@@ -13,9 +13,9 @@ struct TicketNode {
     struct TicketNode* next;       // pointer to the next node in the list
 };
 
-// fnction to add a new ticket to the list
-struct TicketNode* add_ticket(struct TicketNode* head, struct Ticket new_ticket);
-
+// function to add a new ticket to the list, return 0 if the operation is successful, -1 if it fails
+int add_ticket(struct TicketNode* head, struct Ticket new_ticket);
+ 
 // function that returns all the tickets created by a specific agent
 struct TicketNode** get_tickets_by_agent_id(struct TicketNode* head, int agent_id);
 

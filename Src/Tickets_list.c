@@ -2,20 +2,24 @@
 
 
 // fnction to add a new ticket to the list
-struct TicketNode* add_ticket(struct TicketNode* head, struct Ticket new_ticket){
+int add_ticket(struct TicketNode* head, struct Ticket new_ticket){
+
+    // Allocate memory for the new node
     struct TicketNode* new_node = (struct TicketNode*)malloc(sizeof(struct TicketNode));
     
     // check if memory allocation was successful
     if (!new_node) {
         fprintf(stderr, "Memory allocation failed\n");
-        return head; 
+        return -1;
     }
     
     new_node->ticket = new_ticket; // Copy the ticket data into the new node
     new_node->next = NULL; // Initialize the next pointer to NULL
-
+    
+    // If the list is empty, set the new node as the head
     if (head == NULL) {
-        return new_node; // If the list is empty, return the new node as the head
+        head = new_node; // Set the head to the new node
+        return 0; // Return success
     }
 
     // Otherwise, find the end of the list and append the new node
@@ -25,7 +29,7 @@ struct TicketNode* add_ticket(struct TicketNode* head, struct Ticket new_ticket)
     }
     current->next = new_node; // Append the new node at the end of the list
 
-    return head; // Return the unchanged head of the list
+    return 0; 
 }
 
 

@@ -14,6 +14,7 @@
 #include <stdlib.h>
 
 #include "../Ticket.h"
+#include "../Terminal_com.h"
 
 // function that starts the client side with the right server parameter
 int client_start(int port, in_addr_t server_ip_addr);
