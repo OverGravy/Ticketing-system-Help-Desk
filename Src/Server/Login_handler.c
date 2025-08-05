@@ -1,13 +1,12 @@
 #include "../../Libs/Server/Login_handler.h"
 
-// Function to handle user sign-in adding a new agent to the list
 int Singing_in(int id, struct AgentNode* head){
     // generate a key for the user
     int key = id * 12345; 
 
     struct AgentNode* new_node = (struct AgentNode*)malloc(sizeof(struct AgentNode));
     if (new_node == NULL) {
-        perror("Server: Failed to register a new agent");
+        terminal_print(MSG_ERROR, "Memory allocation failed for new agent node", SERVER, "Server");
         return -1; 
     }
 

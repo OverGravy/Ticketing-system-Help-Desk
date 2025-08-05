@@ -12,16 +12,19 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "Request_handler.h"
+#include "./Server_net_com.h"
 #include "../Terminal_com.h"
 
 #define DEFAULT_PROTOCOL 0
-#define DEFAULT_PORT     1025
-#define BUFFER_SIZE      1024
+#define DEFAULT_PORT  1025
 
-int server_start(int port);     // funcion that starts the server opening a socket and return it 
+// funcion that starts the server opening a socket and return the file descriptor
+int server_start(int port);     
 
-int server_loop(int server_fd);    // function that handle the server loop
+// function that handle the all the server operation
+int server_loop(int server_fd);    
 
+// function that close correcly the server
+int server_stop(int server_fd);
 
 #endif

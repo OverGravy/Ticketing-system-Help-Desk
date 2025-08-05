@@ -49,47 +49,84 @@ int client_loop(int id,int client_fd){   // the id is fondamental to identify a 
     sleep(1);
     
     char buffer[256];
-    
-    // create a dummy ticket to send
+
+    /*
+    // Create a dummy ticket to send
     struct Ticket ticket = {
-        .title = "Test Ticket",
-        .description = "This is a test ticket",
-        .creation_date = malloc(sizeof(struct Date)),
-        .priority = 1,
-        .status = 0,
-        .agent_id = id,
+        .title = "Test Ticket", // Ticket title
+        .description = "This is a test ticket", // Ticket description
+        .creation_date = malloc(sizeof(struct Date)), // Allocate memory for creation date
+        .priority = 1, // Ticket priority
+        .status = 0, // Ticket status
+        .agent_id = id, // Agent ID associated with the ticket
     };
 
+    // Check if memory allocation for creation_date was successful
     if (ticket.creation_date == NULL) {
-        perror("Client: Memory allocation failed for ticket creation date");
-        return -1;
+        terminal_print(MSG_ERROR, "Memory allocation failed for ticket creation date", CLIENT, "Client");
+        free(ticket.creation_date); // Free memory if allocation failed
+        return -1; // Return error
     }
+    // Set creation date fields
     ticket.creation_date->day = 1;
     ticket.creation_date->month = 1;
     ticket.creation_date->year = 2023;
 
     // Serialize the ticket into a packet
     struct Packet packet;
-    packet.type = 2; // Assuming type 1 is for ticket creation
-    packet.contenct = ticket;
+    packet.type = 2; // Assuming type 2 is for ticket creation
+    packet.contenct = ticket; // Assign ticket to packet content
 
     // Serialize the packet into a buffer
     if (serialize_packet(&packet, buffer, sizeof(buffer)) != 0) {
-        printf("Client %d: Error serializing packet\n", id);
-        free(ticket.creation_date);
-        return -1;
+        terminal_print(MSG_ERROR, "Error serializing packet", CLIENT, "Client");
+        free(ticket.creation_date); // Free memory if serialization fails
+        return -1; // Return error
     }
     // Free the allocated memory for the ticket creation date
     free(ticket.creation_date);
 
-    // send the message to the server
+    // Send the message to the server
     ssize_t bytes_sent = send(client_fd, buffer, strlen(buffer), 0);
     if (bytes_sent < 0) {
-        printf("Client: Error sending message\n");
-        return -1;
+        terminal_print(MSG_ERROR, "Error sending message", CLIENT, "Client");
+        return -1; // Return error if sending fails
     }
 
-    printf("Client %d: Message sent successfully\n", id);
+    // Print success message
+    terminal_print(MSG_SUCCESS, "Ticket sent successfully", CLIENT, "Client");
+    */
+    while(1) { // Loop until the window is closed
+    
+    }
+
+    // send a message to the server to indicate that the client is closing
+    /*
+    struct Packet packet;
+    packet.type = 5;
+    packet.contenct.agent_id = id; // Set the agent ID in the packet content
+    
+    // Serialize the packet into a buffer
+    if (serialize_packet(&packet, buffer, sizeof(buffer)) != 0) {
+        terminal_print(MSG_ERROR, "Error serializing packet", CLIENT, "Client");
+        return -1; // Return error if serialization fails
+    }
+    
+    // Send the message to the server
+    ssize_t bytes_sent = send(client_fd, buffer, strlen(buffer), 0);
+    if (bytes_sent < 0) {
+        terminal_print(MSG_ERROR, "Error sending message", CLIENT, "Client");
+        return -1; // Return error if sending fails
+    }
+    
+    // Print success message
+    terminal_print(MSG_SUCCESS, "Client closing message sent successfully", CLIENT, "Client");
+    */
+
+    // Close the client socket
+    close(client_fd);
+    
+    terminal_print(MSG_SUCCESS, "Client process completed successfully", CLIENT, "Client");
 
     return 0; // Return 0 to indicate success
     
@@ -100,56 +137,61 @@ int agent_client_loop(int id,int client_fd){   // the id is fondamental to ident
     
     char buffer[256];
     int key;
-    struct Packet packet;
-
-    sleep(1);
     
-    // create a log in ticket to send
-    struct Ticket ticket = {
-        .title = "-",
-        .description = "-",
-        .creation_date = malloc(sizeof(struct Date)),
-        .priority = - 999,
-        .status = -999, 
-        .agent_id = id,
-    };
+    RequestPacket req; // package that will be used to send request to the server 
+    ResponsePacket resp;
 
-    if (ticket.creation_date == NULL) {
-        perror("Agent: Memory allocation failed for ticket creation date");
-        return -1;
-    }
-    ticket.creation_date->day = 1;
-    ticket.creation_date->month = 1;
-    ticket.creation_date->year = 1;
-
-    // Serialize the ticket into a packet
-    packet.type = 6; // Assuming type 6 is for agent login
-    packet.contenct = ticket;
-
-    // Free the allocated memory for the ticket creation date
-    free(ticket.creation_date);
+    // popolate the request ticket for Sing in
+    req.type = REQ_SIGNIN;
+    req.role = ROLE_AGENT;
+    req.data.signin.agent_id = id;
 
     // Serialize the packet into a buffer
-    if (serialize_packet(&packet, buffer, sizeof(buffer)) != 0) {
-        printf("Agent %d: Error serializing packet\n", id);
+    if (serialize_request(&req, buffer) != 0) {
+        terminal_print(MSG_ERROR, "Error serializing packet", AGENT, "Agent");
         return -1;
     }
 
     // send the message to the server
     ssize_t bytes_sent = send(client_fd, buffer, strlen(buffer), 0);
     if (bytes_sent < 0) {
-        printf("Agent: Error sending message\n");
+        terminal_print(MSG_ERROR, "Error sending message", AGENT, "Agent");
         return -1;
     }
 
-    read(client_fd, &key, sizeof(key));
-    if (key < 0) {
-        printf("Agent %d: Error receiving key from server\n", id);
+    // recive the message
+    ssize_t bytes_received = read(client_fd, buffer, sizeof(buffer) - 1);
+    if (bytes_received <= 0) {
+        terminal_print(MSG_ERROR, "Error receiving response", AGENT, "Agent");
+        return -1;
+    }
+    buffer[bytes_received] = '\0'; // put the string terminator
+
+    // deserialize the response
+    if (deserialize_response(buffer, &resp) != 0) {
+        terminal_print(MSG_ERROR, "Error deserializing response", AGENT, "Agent");
         return -1;
     }
 
-    printf("Agent %d: Log-in succesfully happen with key -> %d\n", id, key);
+    // verify the status
+    if (resp.type != RESP_OK || resp.status_code != 0) {
+        terminal_print(MSG_ERROR, "Agent log-in failed", AGENT, "Agent");
+        return -1;
+    }
 
-    return 0; // Return 0 to indicate success
+    // extract the key from the message
+    key = atoi(resp.message);  
+
+    terminal_print(MSG_SUCCESS, "Agent logged in successfully", AGENT, "Agent");
+
     
+    return 0;
+}
+
+int client_stop(int client_fd) {
+    if (close(client_fd) < 0) {
+        terminal_print(MSG_ERROR, "Error closing client socket", CLIENT, "Client");
+        return -1;
+    }
+    return 0; // Return 0 to indicate successful closure
 }

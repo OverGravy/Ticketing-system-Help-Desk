@@ -11,7 +11,7 @@
 // struct that memorizes the agent information
 struct Agent {
     int client_id;
-    int password
+    int password;
 };
 
 // struct that is part of a list of agents
@@ -20,7 +20,7 @@ struct AgentNode {
     struct AgentNode* next;
 };
 
-// function that adds the agent to the list and create a key for the user and returns it, if the agent is already in the list it returns 0 in case of error returns 0
+// function that adds the agent to the list and create a key for the user and returns it, if the agent is already in the list it returns 0 in case of error returns -1
 int Singing_in(int id, struct AgentNode* head);
 
 int Logging_in(int id, struct AgentNode* head);

@@ -1,8 +1,6 @@
-#include "../Libs/Tickets_list.h"
+#include "../../Libs/Server/Tickets_list.h"
 
-
-// fnction to add a new ticket to the list
-int add_ticket(struct TicketNode* head, struct Ticket new_ticket){
+int add_ticket(struct TicketNode* head, Ticket new_ticket, int ticket_id){
 
     // Allocate memory for the new node
     struct TicketNode* new_node = (struct TicketNode*)malloc(sizeof(struct TicketNode));
@@ -14,7 +12,13 @@ int add_ticket(struct TicketNode* head, struct Ticket new_ticket){
     }
     
     new_node->ticket = new_ticket; // Copy the ticket data into the new node
-    new_node->next = NULL; // Initialize the next pointer to NULL
+
+    // ticket info that server need to add
+    new_node->ticket.id = ticket_id;
+    //new_node->ticket.date = "12/12/2012";
+    new_node->ticket.status = STATUS_OPEN;  // by default is open
+
+    new_node->next = NULL;          // Initialize the next pointer to NULL
     
     // If the list is empty, set the new node as the head
     if (head == NULL) {
@@ -33,16 +37,12 @@ int add_ticket(struct TicketNode* head, struct Ticket new_ticket){
 }
 
 
-
-// function that returns all the tickets created by a specific agent
 struct TicketNode** get_tickets_by_agent_id(struct TicketNode* head, int agent_id){
 
 }
 
 
-
-// function that get a specific ticket id from the list using the ticket title
-struct Ticket* get_ticket_by_title(struct TicketNode* head, const char* title) {
+Ticket* get_ticket_by_title(struct TicketNode* head, const char* title) {
     struct TicketNode* current = head;
     while (current != NULL) {
         if (strcmp(current->ticket.title, title) == 0) {
@@ -54,8 +54,6 @@ struct Ticket* get_ticket_by_title(struct TicketNode* head, const char* title) {
 }
 
 
-
-// function that destroy the list of tickets
 void destroy_tickets_list(struct TicketNode* head) {
     struct TicketNode* current = head;
     struct TicketNode* next_node;

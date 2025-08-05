@@ -13,15 +13,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../Ticket.h"
+#include "../Packets.h"
 #include "../Terminal_com.h"
 
-// function that starts the client side with the right server parameter
+#define DEFAULT_PORT 1025
+
+// function that starts the client with the right server parameter and retrun the file descriptor
 int client_start(int port, in_addr_t server_ip_addr);
 
-int client_loop(int id, int client_fd); // id identify witch client is writing on the terminal
+// function that handle the main client operation 
+int client_loop(int id, int client_fd); 
 
+// function that handle the main agent type client operation
 int agent_client_loop(int id, int client_fd); 
 
+// function that close the client with the relative file descriptor
+int client_stop(int client_fd);
 
 #endif
