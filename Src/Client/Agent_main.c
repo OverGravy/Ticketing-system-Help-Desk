@@ -2,7 +2,7 @@
 
 // The agent needs is id as argument on argv
 int main(int argc, char *argv[]) {
-
+/*
     int id, agent_client_fd; // client id expected to be pass on argv in case it will be 0
     char name[256];         // expected to be sufficent space for "agent" + id 
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     }
 
     // execute the client loop catching any possible error
-    if(agent_client_loop(id, agent_client_fd) < 0) return -1;
+    if(agent_client_loop(id, name, agent_client_fd) < 0) return -1;
 
     // execute the client stop catching any possible error 
     if(client_stop(agent_client_fd) < 0) return -1;
@@ -36,4 +36,5 @@ int main(int argc, char *argv[]) {
 
     return 0;
 
+*/
 }

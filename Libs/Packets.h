@@ -38,10 +38,10 @@ typedef enum {
 
 // Define possible response types
 typedef enum {
-    RESP_OK,
-    RESP_ERROR,
-    RESP_TICKET_DATA,
-    RESP_AUTH_REQUIRED
+    RESP_SING_IN_OK,
+    RESP_TICKET_OK,
+    RESP_AUTH_REQUIRED,
+    RESP_ERROR
 } ResponseType;
 
 

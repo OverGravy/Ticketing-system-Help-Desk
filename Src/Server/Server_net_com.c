@@ -1,83 +1,36 @@
 #include "../../Libs/Server/Server_net_com.h"
 
-int request_handler(int client_fd, struct TicketNode* tickets_list, int buffer_size, struct AgentNode* agent_list)
-{
-    RequestPacket req;
-    ResponsePacket resp;
-    int op_result; // Variable to hold the result of the operation
+int accept_request(int client_fd, RequestPacket* request_packet){
 
-    // Dinamic allocation of buffer cause i pass buffer_size as parameter
-    char* buffer = malloc(buffer_size);
-    if (buffer == NULL) {
+    int character;
+
+    char* req_buffer = malloc(BUFFER_SIZE);  // string recived as request
+
+    // check if req_buffer have been allocated correcly
+    if (req_buffer == NULL) {
         terminal_print(MSG_ERROR, "Error allocating memory for the buffer", SERVER, "Server");
         return -1;
     }
 
-    // Read from the socket
-    int character = read(client_fd, buffer, buffer_size - 1);
+    // read what camed trought the socket
+    character = read(client_fd, req_buffer, BUFFER_SIZE - 1);
     if (character <= 0) {
-        free(buffer);
+        free(req_buffer);
         terminal_print(MSG_ERROR, "Error reading from socket", SERVER, "Server");
         return -1;
     }
 
     // Deserialize the packet using the dedicated function
-    if (deserialize_request(buffer, &req) != 0) {
-        free(buffer);
+    if (deserialize_request(req_buffer, request_packet) != 0) {
+        free(req_buffer);
         terminal_print(MSG_ERROR, "Error deserializing the packet", SERVER, "Server");
         return -1;
     }
 
-    // Process the request based on the request type
-    switch (req.type)
-    {
-        case REQ_CREATE_TICKET: // request to add a ticket to the server
-            op_result = add_ticket(tickets_list, req.data.new_ticket, 20);
-            if (op_result == -1) {
-                free(buffer);
-                terminal_print(MSG_ERROR, "Error adding ticket", SERVER, "Server");
-                return -1; // Error adding ticket
-            } else {
-                terminal_print(MSG_SUCCESS, "Ticket added successfully", SERVER, "Server");
-            }
-            break;
+    return 0; // everithing went well
 
-        case REQ_SIGNIN: // request to sign in
-            op_result = Singing_in(req.data.signin.agent_id, agent_list);
-            if (op_result == -1) {
-                free(buffer);
-                terminal_print(MSG_ERROR, "Error signing in agent", SERVER, "Server");
-                return -1;
-            } else if (op_result == 0) {
-                free(buffer);
-                terminal_print(MSG_INFO, "Agent already signed in", SERVER, "Server");
-                return 0; // Agent already signed in, no need to proceed
-            } else {
-                terminal_print(MSG_SUCCESS, "Agent signed in successfully", SERVER, "Server");
-
-                // prepare the response for the client
-                resp.type = RESP_OK;
-                resp.status_code = 0;
-                snprintf(resp.message, sizeof(resp.message), "%d", op_result); // send the key inside the message
-
-                if(send_response(client_fd, &resp) == -1){
-                    terminal_print(MSG_ERROR, "Unable to send a response", SERVER, "Server");
-                    free(buffer);
-                    return -1;
-                }
-
-            }
-            break;
-        default:
-            terminal_print(MSG_ERROR, "Unknown request type", SERVER, "Server");
-            free(buffer);
-            return -1; // the server is unable to handle the request
-            break;
-    }
-
-    free(buffer); // Free the allocated buffer
-    return 0; // Return 0 to indicat
 }
+
 
 int send_response(int client_fd, ResponsePacket* response_packet)
 {
@@ -106,7 +59,7 @@ int send_response(int client_fd, ResponsePacket* response_packet)
     // send the respone trought the socket
     if (write(client_fd, resp_buffer, strlen(resp_buffer)) == -1) {
         free(resp_buffer);
-        terminal_print(MSG_ERROR, "Failed to write response to client", SERVER, "Server");
+        terminal_print(MSG_ERROR, "Failed to send response to client", SERVER, "Server");
         return -1;
     }
 

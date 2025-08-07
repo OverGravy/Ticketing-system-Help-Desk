@@ -16,10 +16,10 @@
 #include "./Login_handler.h"
 #include "../Packets.h"
 
-// Function that handle the reequest from the client
-// It will read the request from the client, process it and send a response back
-// It will return 0 if the request was processed successfully, -1 if there was an error
-int request_handler(int client_fd, struct TicketNode* tickets_list, int buffer_size, struct AgentNode* agent_list); 
+// function that accept a request and rtaking the packet populateit
+// it will deserialize the request
+// it will return 0 in case everithing went right, -1 if something gose wrong 
+int accept_request(int client_fd, RequestPacket* request_packet);
 
 // Function that send a response to the client
 // It will serialize the response packet and send it to the client
