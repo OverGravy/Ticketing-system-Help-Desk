@@ -2,7 +2,8 @@
 
 int Singing_in(int id, struct AgentNode* head){
     // generate a key for the user
-    int key = id * 12345; 
+    srand(time(NULL));
+    int key = id * 12345 + (rand() % 2000 + 1); // even if the id is 0 you have a number that operate as a key 
 
     struct AgentNode* new_node = (struct AgentNode*)malloc(sizeof(struct AgentNode));
     if (new_node == NULL) {

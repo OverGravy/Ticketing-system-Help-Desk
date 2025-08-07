@@ -31,8 +31,8 @@ typedef enum {
     REQ_SIGNIN,                     // client send a sing-in request with his agent_id
     REQ_LOGIN,                      // client send a login request with his agent_id, pwd and role requested
     REQ_CREATE_TICKET,              // client send a request to create a new ticket with title, description, priority and client_id the status is set by the server withn the date
-    REQ_QUERY_AND_MODIFY_TICKET,    // client send a request to query and modify a ticket with title, description, and client_d, new_priority, new_status and new_client_id
-    REQ_GET_PRIORITY_TICKET,        // client send a request to get the priority of a ticket sending the title and his client_id
+    REQ_QUERY,
+    REQ_QUERY_AND_MOD
 } RequestType;
 
 
@@ -40,6 +40,8 @@ typedef enum {
 typedef enum {
     RESP_SING_IN_OK,
     RESP_TICKET_OK,
+    RESP_QUERY_OK,
+    RESP_QUERY_MOD_OK,
     RESP_AUTH_REQUIRED,
     RESP_ERROR
 } ResponseType;
@@ -70,22 +72,23 @@ typedef struct {
 } Ticket;
 
 
-// Define a structure that rappresent a request to create a new ticket, fields rappresent my filters 
+// Define a structure that rappresent a request to find a ticket, fields rappresents my filters 
 typedef struct {
+    int ticket_id;
     char title[MAX_TITLE_LEN];
     char description[MAX_DESC_LEN];
     int client_id;                  
-    int new_priority;
-    TicketStatus new_status;
-    int new_client_id; 
-} TicketQueryAndModification;
+} TicketQuery;
 
 
 // Define a structure that rappresent a request to query a ticket used by the client
 typedef struct {   
-    int client_id;              
-    char title[MAX_TITLE_LEN];
-} TicketQuery;
+    char new_title[MAX_TITLE_LEN];
+    char new_description[MAX_DESC_LEN];
+    int new_client_id;                  
+    int new_priority;
+    TicketStatus new_status;
+} TicketModification;
 
 
 // Define a structure that rappresent a request from the client to the server
@@ -97,8 +100,8 @@ typedef struct {
         SingInRequest signin;
         LoginRequest login;
         Ticket new_ticket;
-        TicketQuery priority_query; // for query requests
-        TicketQueryAndModification mod_query;
+        TicketQuery filters; 
+        TicketModification modification;
     } data;
 } RequestPacket;
 
@@ -106,7 +109,6 @@ typedef struct {
 // Define a structure that rappresent a response from the server
 typedef struct {
     ResponseType type;
-    TicketStatus status_code; 
     char message[MAX_RESP_MSG_LEN];            // free message for teh client
 } ResponsePacket;
 

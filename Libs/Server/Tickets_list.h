@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "../Packets.h"
 
@@ -16,11 +17,11 @@ struct TicketNode {
 // function to add a new ticket to the list, return 0 if the operation is successful, -1 if it fails
 int add_ticket(struct TicketNode* head, Ticket new_ticket, int ticket_id);
  
-// function that returns a vector of tickets created by a specific client
-struct TicketNode** get_tickets_by_agent_id(struct TicketNode* head, int agent_id);
+// function that find a specific ticket inside the list considering the filters passed
+Ticket * find_ticket(struct TicketNode* head, TicketQuery* filters);
 
-// function that get a specific ticket id from the list using the ticket title
-Ticket* get_ticket_by_title(struct TicketNode* head, const char* title);
+// function that modify a specific ticket with the field of the modification
+int modify_ticket(struct TicketNode* head, TicketModification* mod);
 
 // function that pick the ticket with the highest priority return it and remove it from the list
 Ticket* get_highest_priority_ticket(struct TicketNode** head);
