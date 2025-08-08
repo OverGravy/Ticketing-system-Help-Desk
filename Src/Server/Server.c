@@ -86,7 +86,7 @@ int server_loop(int server_fd)
             switch (req_packet.type)
             {
             case REQ_CREATE_TICKET: // request to add a ticket to the server
-                op_result = add_ticket(tickets_list, req_packet.data.new_ticket, 20);
+                op_result = add_ticket(&tickets_list, req_packet.data.new_ticket, 20);
                 if (op_result == -1)
                 {
                     resp_packet.type = RESP_ERROR;

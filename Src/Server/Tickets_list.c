@@ -1,6 +1,6 @@
 #include "../../Libs/Server/Tickets_list.h"
 
-int add_ticket(struct TicketNode *head, Ticket new_ticket, int ticket_id)
+int add_ticket(struct TicketNode **head, Ticket new_ticket, int ticket_id)
 {
 
     // Allocate memory for the new node
@@ -23,19 +23,36 @@ int add_ticket(struct TicketNode *head, Ticket new_ticket, int ticket_id)
     new_node->next = NULL; // Initialize the next pointer to NULL
 
     // If the list is empty, set the new node as the head
-    if (head == NULL)
+    if (*head == NULL)
     {
-        head = new_node; // Set the head to the new node
-        return 0;        // Return success
+        *head = new_node; // modifica il valore originale
+        printf("yo\n");
+        return 0;
     }
 
     // Otherwise, find the end of the list and append the new node
-    struct TicketNode *current = head;
+    struct TicketNode *current = *head;
     while (current->next != NULL)
     {
         current = current->next;
     }
     current->next = new_node; // Append the new node at the end of the list
+
+    printf("Aggiunta ticket:\n"
+       "  ID: %d\n"
+       "  Titolo: %s\n"
+       "  Descrizione: %s\n"
+       "  Data: %s\n"
+       "  Priorità: %d\n"
+       "  Stato: %d\n"
+       "  ID Client: %d\n",
+       new_ticket.id,
+       new_ticket.title,
+       new_ticket.description,
+       new_ticket.date,
+       new_ticket.priority,
+       new_ticket.status,
+       new_ticket.client_id);
 
     return 0;
 }
@@ -61,24 +78,20 @@ bool match_ticket(Ticket *ticket, TicketQuery *query)
 
 Ticket *find_ticket(struct TicketNode *head, TicketQuery *filters)
 {
-
     struct TicketNode *current = head;
-    struct TicketNode *next_node;
 
     while (current != NULL)
     {
-
         if (match_ticket(&current->ticket, filters))
         {
-            return &current->ticket; // return that ticket
+            return &current->ticket; // match trovato
         }
-
-        next_node = current->next; // Store the next node
-        current = next_node;       // Move to the next node
+        current = current->next;
     }
 
-    return NULL;
+    return NULL; // Nessun match trovato
 }
+
 
 int modify_ticket(struct TicketNode* head, TicketModification* mod){
      

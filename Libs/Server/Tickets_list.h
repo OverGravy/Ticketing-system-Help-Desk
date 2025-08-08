@@ -15,7 +15,7 @@ struct TicketNode {
 };
 
 // function to add a new ticket to the list, return 0 if the operation is successful, -1 if it fails
-int add_ticket(struct TicketNode* head, Ticket new_ticket, int ticket_id);
+int add_ticket(struct TicketNode** head, Ticket new_ticket, int ticket_id);
  
 // function that find a specific ticket inside the list considering the filters passed
 Ticket * find_ticket(struct TicketNode* head, TicketQuery* filters);
