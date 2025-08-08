@@ -60,7 +60,7 @@ int accept_response(int server_fd, ResponsePacket* resp_packet, char* name){
      // Deserialize the packet using the dedicated function
     if (deserialize_response(resp_buffer, resp_packet) != 0) {
         free(resp_buffer);
-        terminal_print(MSG_ERROR, "Error deserializing the packet", SERVER, name);
+        terminal_print(MSG_ERROR, "Error deserializing the packet", CLIENT, name);
         return -1;
     }
 

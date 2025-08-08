@@ -67,6 +67,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
 
         close(server_fd);
         
+        // wait 2 seconds
+        sleep(2);
 
         // search for the ticket in the servr
         req_pack.type = REQ_QUERY;
@@ -81,8 +83,34 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
             return -1;
         }
 
+          // send the request
+        if (send_request(server_fd, &req_pack, name) == -1)
+        {
+            terminal_print(MSG_ERROR, "Something went wrong while sending the request", CLIENT, name);
+        }
+        else
+        {
+            terminal_print(MSG_SUCCESS, "Request sent succesfully to the server", CLIENT, name);
+        }
 
-
+        // wait for a positive response from server
+        if (accept_response(server_fd, &resp_pack, name) == -1)
+        {
+            terminal_print(MSG_ERROR, "Something went wrong while waithing for a response", CLIENT, name);
+        }
+        else
+        {
+            if (resp_pack.type == RESP_QUERY_OK)
+            {
+                terminal_print(MSG_INFO, "Ticket correctly found by inside the server", CLIENT, name);
+            }
+            else
+            {
+                terminal_print(MSG_ERROR, "Something went wrong on server side while searching the ticket", CLIENT, name);
+            }
+        }
+        
+        close(server_fd);
 
     }
 

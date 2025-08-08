@@ -124,4 +124,10 @@ int serialize_response(const ResponsePacket* resp, char* buffer);
 // function that deserialize a ResponsePacket from a buffer
 int deserialize_response(const char* buffer, ResponsePacket* resp);
 
+// function that reset a given ResponsePacket structure
+int reset_response(ResponsePacket* resp);
+
+// function that reset a given RequestPacket structure
+int reset_request(RequestPacket* req);
+
 #endif

@@ -100,11 +100,6 @@ int server_loop(int server_fd)
                     terminal_print(MSG_SUCCESS, "Ticket added successfully", SERVER, "Server");
                 }
 
-                // send a response
-                if (send_response(client_fd, &resp_packet))
-                {
-                    terminal_print(MSG_ERROR, "Unable to send a response to the client", SERVER, "Server");
-                }
                 break;
 
             case REQ_SIGNIN: // request to sign in
@@ -136,14 +131,16 @@ int server_loop(int server_fd)
                 {
                     terminal_print(MSG_SUCCESS, "Ticket succcesfuylly found in the list", SERVER, "Server");
                     resp_packet.type = RESP_QUERY_OK;
+                    strcpy(resp_packet.message, "OK");
                 }
                 else
                 {
                     terminal_print(MSG_ERROR, "Ticket was'nt found inside the list", SERVER, "Server");
                     resp_packet.type = RESP_ERROR;
+                    strcpy(resp_packet.message, "OK");
                 }
                 break;
-            case  REQ_QUERY_AND_MOD:
+            case REQ_QUERY_AND_MOD:
 
             break;
             default:

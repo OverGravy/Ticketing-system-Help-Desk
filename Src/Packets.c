@@ -60,7 +60,7 @@ int serialize_request(const RequestPacket* req, char* buffer){
 // Function to serialize a ResponsePacket into a buffer
 int serialize_response(const ResponsePacket* resp, char* buffer) {
     if (!resp || !buffer || BUFFER_SIZE < 1) return -1; // Check for null pointers and buffer size
-    
+
     // Start with an empty buffer
     buffer[0] = '\0';
     size_t offset = 0;
@@ -73,6 +73,7 @@ int serialize_response(const ResponsePacket* resp, char* buffer) {
 
     // Ensure the buffer is null-terminated
     buffer[BUFFER_SIZE - 1] = '\0';
+
     return 0; // Success
 }
 
@@ -226,7 +227,7 @@ int deserialize_request(const char* buffer, RequestPacket* req) {
 }
 
 int deserialize_response(const char* buffer, ResponsePacket* resp){
-     if (!buffer || !resp) return -1; // Check for null pointers
+    if (!buffer || !resp){printf("yo2");return -1;} // Check for null pointers
 
     // Reset the response structure
     memset(resp, 0, sizeof(ResponsePacket));
@@ -237,15 +238,20 @@ int deserialize_response(const char* buffer, ResponsePacket* resp){
 
     // Get the response type
     token = strtok_r(rest, "|", &rest);
-    if (!token) return -1;
+    if (!token) {printf("yo");return -1;}
     resp->type = (ResponseType)atoi(token);
 
     // Get the message
     token = strtok_r(rest, "|", &rest);
-    if (!token) return -1;
+    if (!token) {printf("yo1");return -1;}
     strncpy(resp->message, token, MAX_RESP_MSG_LEN -1);
     resp->message[MAX_RESP_MSG_LEN-1] = '\0';
 
     // everything went fine
     return 0;
+}
+
+
+int reset_response(ResponsePacket* resp){
+    resp->type = -1;  
 }

@@ -81,7 +81,7 @@ Ticket *find_ticket(struct TicketNode *head, TicketQuery *filters)
 }
 
 int modify_ticket(struct TicketNode* head, TicketModification* mod){
-    if 
+     
 }
 
 void destroy_tickets_list(struct TicketNode *head)
