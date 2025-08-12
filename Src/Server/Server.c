@@ -40,22 +40,31 @@ int server_loop(int server_fd)
 {
 
     int client_fd;                              // client file descriptor
+    sqlite3 *db;                                // database needed to store tickets
     struct sockaddr_in client_addr;             // client info compiled by accept
     socklen_t client_len = sizeof(client_addr); // size of the client address structure
+
+    Ticket query; // Ticket used to rapresent the result of a query.
 
     RequestPacket req_packet;
     ResponsePacket resp_packet;
     int op_result;
 
-    Ticket *query = NULL; // pointer to a specific ticket that i searched
-
-    struct TicketNode *tickets_list = NULL; // Ticket list pointer
-    struct AgentNode *agent_list = NULL;    // Agent list pointer
-
     signal(SIGCHLD, SIG_IGN); // ignore childs death
 
+    // init the database and catch any possible error while doing it
+    if (init_db(&db, "../Db/Tickets.db") != SQLITE_OK)
+    {
+        terminal_print(MSG_ERROR, "Something went wrong while trying to inizialize the database", SERVER, "Server");
+        return -1;
+    }
+    else
+    {
+        terminal_print(MSG_INFO, "Database correctly inizialized ...", SERVER, "Server");
+    }
+
     while (1)
-    { // TROVA UN CONDIZIONE SERIA
+    {
 
         // accept new connection
         client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);
@@ -85,70 +94,31 @@ int server_loop(int server_fd)
             // handle the request type
             switch (req_packet.type)
             {
-            case REQ_CREATE_TICKET: // request to add a ticket to the server
-                op_result = add_ticket(&tickets_list, req_packet.data.new_ticket, 20);
-                if (op_result == -1)
-                {
-                    resp_packet.type = RESP_ERROR;
-                    strcpy(resp_packet.message, "NO");
-                    terminal_print(MSG_ERROR, "Error adding ticket", SERVER, "Server");
-                }
-                else
-                {
-                    resp_packet.type = RESP_TICKET_OK;
-                    strcpy(resp_packet.message, "OK");
-                    terminal_print(MSG_SUCCESS, "Ticket added successfully", SERVER, "Server");
-                }
-
+            case REQ_CREATE_TICKET:
+               
+                request_add_ticket(db, &req_packet, &resp_packet);
+                    
                 break;
 
-            case REQ_SIGNIN: // request to sign in
-                op_result = Singing_in(req_packet.data.signin.agent_id, agent_list);
-                if (op_result == -1)
-                {
-                    terminal_print(MSG_ERROR, "Error signing in agent", SERVER, "Server");
-                }
-                else if (op_result == 0)
-                {
-                    terminal_print(MSG_INFO, "Agent already signed in", SERVER, "Server");
-                }
-                else
-                {
-                    terminal_print(MSG_SUCCESS, "Agent signed in successfully", SERVER, "Server");
+            case REQ_SIGNIN:
 
-                    // prepare the response for the agent
-                    resp_packet.type = RESP_SING_IN_OK;
-                    snprintf(resp_packet.message, sizeof(resp_packet.message), "%d", op_result); // send the key inside the message
-                }
+                request_sing_in(db, &req_packet, &resp_packet);
+              
                 break;
 
             case REQ_QUERY:
 
-                query = find_ticket(tickets_list, &req_packet.data.filters);
-
-                // if the function finds it inside the list
-                if (query != NULL)
-                {
-                    terminal_print(MSG_SUCCESS, "Ticket succcesfuylly found in the list", SERVER, "Server");
-                    resp_packet.type = RESP_QUERY_OK;
-                    strcpy(resp_packet.message, "OK");
-                }
-                else
-                {
-                    terminal_print(MSG_ERROR, "Ticket was'nt found inside the list", SERVER, "Server");
-                    resp_packet.type = RESP_ERROR;
-                    strcpy(resp_packet.message, "OK");
-                }
+                request_client_query(db, &req_packet, &resp_packet);
+                
                 break;
             case REQ_QUERY_AND_MOD:
 
-            break;
+                request_agent_query(db, &req_packet, &resp_packet);
+
+                break;
             default:
                 terminal_print(MSG_ERROR, "Unknown request type", SERVER, "Server");
                 resp_packet.type = RESP_ERROR;
-
-                // add a specific message to this situation
-
                 break;
             }
 
@@ -173,18 +143,14 @@ int server_loop(int server_fd)
         }
     }
 
-    // destroy the list and do not leave anithg hanged
-    destroy_tickets_list(tickets_list);
-
-    return 0;
-}
-
-int server_stop(int server_fd)
-{
-    if (close(server_fd) < 0)
+    // close teh database
+    if (close_database(db) != SQLITE_OK)
     {
-        terminal_print(MSG_ERROR, "Error closing server socket", SERVER, "Server");
-        return -1;
+        terminal_print(MSG_ERROR, "Something went wrong while closing the tickets database", SERVER, "Server");
     }
+
+    close(server_fd);
+
     return 0;
 }
+

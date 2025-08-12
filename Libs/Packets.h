@@ -11,6 +11,11 @@
 #define MAX_RESP_MSG_LEN 128
 #define BUFFER_SIZE 1024          // buffer size for response and request
 
+
+// define needed where a field is unused
+#define INT_UNUSED -1
+#define STR_UNUSED "-"
+
 // Define the users possible roles
 typedef enum {
     ROLE_CLIENT,
@@ -29,7 +34,6 @@ typedef enum {
 // Define possible request types
 typedef enum {
     REQ_SIGNIN,                     // client send a sing-in request with his agent_id
-    REQ_LOGIN,                      // client send a login request with his agent_id, pwd and role requested
     REQ_CREATE_TICKET,              // client send a request to create a new ticket with title, description, priority and client_id the status is set by the server withn the date
     REQ_QUERY,
     REQ_QUERY_AND_MOD
@@ -54,8 +58,7 @@ typedef struct {
 
 
 // Define a structure that rappresent a specific request for login
-typedef struct {
-    int agent_id;             
+typedef struct {         
     int pwd;                   
 } LoginRequest;
 
@@ -83,13 +86,18 @@ typedef struct {
 
 // Define a structure that rappresent a request to query a ticket used by the client
 typedef struct {   
-    char new_title[MAX_TITLE_LEN];
-    char new_description[MAX_DESC_LEN];
     int new_client_id;                  
     int new_priority;
     TicketStatus new_status;
 } TicketModification;
 
+// define a structure that be needed to be used by the agent to modify a ticket
+
+typedef struct{
+    int pwd;                     // password needed to log-in by the agent
+    TicketQuery filters;         // filters used to search for the ticket inside the database
+    TicketModification mod;      // field that i want to change 
+} TicketQueryAndMod;
 
 // Define a structure that rappresent a request from the client to the server
 typedef struct {
@@ -97,11 +105,10 @@ typedef struct {
     UserRole role;
     int sender_id;
     union {
-        SingInRequest signin;
-        LoginRequest login;
-        Ticket new_ticket;
-        TicketQuery filters; 
-        TicketModification modification;
+        SingInRequest signin;                 // sing-in accesable by the agent
+        Ticket new_ticket;                    // possibility to add ticket accesable by the client
+        TicketQuery Client_query;             // Query accessable by the client
+        TicketQueryAndMod Agent_query;        // Query accessable by the agent
     } data;
 } RequestPacket;
 
@@ -123,11 +130,5 @@ int serialize_response(const ResponsePacket* resp, char* buffer);
 
 // function that deserialize a ResponsePacket from a buffer
 int deserialize_response(const char* buffer, ResponsePacket* resp);
-
-// function that reset a given ResponsePacket structure
-int reset_response(ResponsePacket* resp);
-
-// function that reset a given RequestPacket structure
-int reset_request(RequestPacket* req);
 
 #endif

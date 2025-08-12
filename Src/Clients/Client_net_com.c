@@ -1,4 +1,4 @@
-#include "../../Libs/Client/Client_net_com.h"
+#include "../../Libs/Clients/Client_net_com.h"
 
 int send_request(int server_fd, RequestPacket* req_packet, char* name){
 

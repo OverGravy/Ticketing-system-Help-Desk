@@ -12,8 +12,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "./Server_net_com.h"
-#include "../Terminal_com.h"
+#include "./Request_handler.h"
 
 #define DEFAULT_PROTOCOL 0
 #define DEFAULT_PORT  1025
@@ -23,8 +22,5 @@ int server_start(int port);
 
 // function that handle the all the server operation
 int server_loop(int server_fd);    
-
-// function that close correcly the server
-int server_stop(int server_fd);
 
 #endif

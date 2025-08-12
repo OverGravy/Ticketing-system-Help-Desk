@@ -16,9 +16,6 @@ int main(int argc, char *argv[]) {
     // execute the sever loop catching any error
     if(server_loop(server_fd) < 0) return -1; // something went wrong in server loop
 
-    // execute the server stop catching any error
-    if(server_stop(server_fd) < 0) return -1; // something went wrong in the server stop
-
     // finaml message
     terminal_print(MSG_INFO, "Server stopped successfully", SERVER, "Server");
     

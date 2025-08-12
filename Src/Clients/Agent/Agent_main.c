@@ -1,4 +1,4 @@
-#include "../../Libs/Client/Clients.h"
+#include "../../../Libs/Clients/Agent/Agent.h"
 
 // The agent needs is id as argument on argv
 int main(int argc, char *argv[]) {
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     if(agent_client_loop(id, DEFAULT_PORT, INADDR_LOOPBACK) < 0) return -1;
 
     // finaml message
-    terminal_print(MSG_INFO, "Client stopped successfully", AGENT, name);
+    terminal_print(MSG_SUCCESS, "Agent stopped successfully", AGENT, name);
 
     return 0;
 }

@@ -1,5 +1,5 @@
-#ifndef STD_CLIENT_H
-#define STD_CLIENT_H
+#ifndef STD_AGENT_H
+#define STD_AGENT_H
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -14,14 +14,12 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
-#include "../Packets.h"
-#include "../Terminal_com.h"
-#include "./Client_net_com.h"
+#include "../../Packets.h"
+#include "../../Terminal_com.h"
+#include "../Client_net_com.h"
+#include "./Agent_graphics.h"
 
 #define DEFAULT_PORT 1025
-
-// function that handle the main client operation 
-int client_loop(int id,int port, in_addr_t server_ip_addr); 
 
 // function that handle the main agent type client operation
 int agent_client_loop(int id, int port, in_addr_t server_ip_addr);

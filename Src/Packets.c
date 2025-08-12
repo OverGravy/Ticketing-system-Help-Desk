@@ -21,11 +21,6 @@ int serialize_request(const RequestPacket* req, char* buffer){
             offset += snprintf(buffer + offset, BUFFER_SIZE - offset, "%d|", req->data.signin.agent_id);
             break;
 
-        case REQ_LOGIN: // Serialize the login request
-            offset += snprintf(buffer + offset, BUFFER_SIZE - offset, "%d|%d|", 
-                               req->data.login.agent_id, req->data.login.pwd);
-            break;
-
         case REQ_CREATE_TICKET: // Serialize the new ticket request
             offset += snprintf(buffer + offset, BUFFER_SIZE - offset, "%s|%s|%d|%d|", 
                                req->data.new_ticket.title, req->data.new_ticket.description, req->data.new_ticket.priority, req->data.new_ticket.client_id);
@@ -33,17 +28,16 @@ int serialize_request(const RequestPacket* req, char* buffer){
 
         case REQ_QUERY: // Serialize the query and modification request
             offset += snprintf(buffer + offset, BUFFER_SIZE - offset, "%d|%s|%s|%d|",
-                               req->data.filters.ticket_id , req->data.filters.title, 
-                               req->data.filters.description , req->data.filters.client_id);
+                               req->data.Client_query.ticket_id , req->data.Client_query.title, 
+                               req->data.Client_query.description, req->data.Client_query.client_id);
             break;
 
           case REQ_QUERY_AND_MOD: // Serialize the query and modification request
-            offset += snprintf(buffer + offset, BUFFER_SIZE - offset, "%d|%s|%s|%d|%s|%s|%d|%d|%d|",
-                               req->data.filters.ticket_id , req->data.filters.title, 
-                               req->data.filters.description , req->data.filters.client_id,
-                               req->data.modification.new_title, req->data.modification.new_description, 
-                               req->data.modification.new_client_id, req->data.modification.new_priority, 
-                               req->data.modification.new_status);
+            offset += snprintf(buffer + offset, BUFFER_SIZE - offset, "%d|%d|%s|%s|%d|%d|%d|%d|",
+                               req->data.Agent_query.pwd, req->data.Agent_query.filters.ticket_id , req->data.Agent_query.filters.title, 
+                               req->data.Agent_query.filters.description , req->data.Agent_query.filters.client_id,
+                               req->data.Agent_query.mod.new_client_id, req->data.Agent_query.mod.new_priority, 
+                               req->data.Agent_query.mod.new_status);
             break;
 
         default:
@@ -111,17 +105,6 @@ int deserialize_request(const char* buffer, RequestPacket* req) {
             req->data.signin.agent_id = atoi(token);             // Get the agent ID
             break;
 
-        case REQ_LOGIN: // Deserialize the login request
-            
-            token = strtok_r(rest, "|", &rest);
-            if (!token) return -1;
-            req->data.login.agent_id = atoi(token);               // Get the agent ID
-            
-            token = strtok_r(rest, "|", &rest);
-            if (!token) return -1;
-            req->data.login.pwd = atoi(token);                     // Get the password                      
-            break;
-
         case REQ_CREATE_TICKET: // Deserialize the new ticket request
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
@@ -142,80 +125,75 @@ int deserialize_request(const char* buffer, RequestPacket* req) {
             req->data.new_ticket.client_id = atoi(token);                         // Get the client ID
             break;
             
-        case REQ_QUERY: // Deserialize the query and modification request
+        case REQ_QUERY: // Deserialize the query 
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
-            req->data.filters.ticket_id = atoi(token);    
+            req->data.Client_query.ticket_id = atoi(token);    
 
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
-            strncpy(req->data.filters.title, token, MAX_TITLE_LEN - 1);
-            req->data.filters.title[MAX_TITLE_LEN - 1] = '\0';                 // title
+            strncpy(req->data.Client_query.title, token, MAX_TITLE_LEN - 1);
+            req->data.Client_query.title[MAX_TITLE_LEN - 1] = '\0';                 // title
             
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
-            strncpy(req->data.filters.description, token, MAX_DESC_LEN - 1);
-            req->data.filters.description[MAX_DESC_LEN - 1] = '\0';            // description
+            strncpy(req->data.Client_query.description, token, MAX_DESC_LEN - 1);
+            req->data.Client_query.description[MAX_DESC_LEN - 1] = '\0';            // description
 
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
-            req->data.filters.client_id = atoi(token);                         // Get the client id              
+            req->data.Client_query.client_id = atoi(token);                         // Get the client id              
             break;
             
         case REQ_QUERY_AND_MOD: // Deserialize the priority ticket request
+
+            // LOG-IN INFO
+            token = strtok_r(rest, "|", &rest);
+            if (!token) return -1;
+            req->data.Agent_query.pwd = atoi(token);                                 // pwd to log-in
+
             // FILTERS
         
             // ticket id
-            token = strtok_r(rest, "|", &rest);
+            token = strtok_r(rest, "|", &rest);                             
             if (!token) return -1;
-            req->data.filters.ticket_id = atoi(token);    
+            req->data.Agent_query.filters.ticket_id = atoi(token);                         // ticket-id
 
             // title
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
-            strncpy(req->data.filters.title, token, MAX_TITLE_LEN - 1);
-            req->data.filters.title[MAX_TITLE_LEN - 1] = '\0';                 // title
+            strncpy(req->data.Agent_query.filters.title, token, MAX_TITLE_LEN - 1);
+            req->data.Agent_query.filters.title[MAX_TITLE_LEN - 1] = '\0';                 // title
             
             // description
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
-            strncpy(req->data.filters.description, token, MAX_DESC_LEN - 1);
-            req->data.filters.description[MAX_DESC_LEN - 1] = '\0';            // description
+            strncpy(req->data.Agent_query.filters.description, token, MAX_DESC_LEN - 1);
+            req->data.Agent_query.filters.description[MAX_DESC_LEN - 1] = '\0';            // description
 
             // client_id
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
-            req->data.filters.client_id = atoi(token);                         // Get the client id              
+            req->data.Agent_query.filters.client_id = atoi(token);                         // Get the client id              
 
             // MODIFICATION
-
-            // new_title
-            token = strtok_r(rest, "|", &rest);
-            if (!token) return -1;
-            strncpy(req->data.modification.new_title, token, MAX_TITLE_LEN - 1);
-            req->data.modification.new_title[MAX_TITLE_LEN - 1] = '\0';   
-
-            // new_description
-            token = strtok_r(rest, "|", &rest);
-            if (!token) return -1;
-            strncpy(req->data.modification.new_description, token, MAX_TITLE_LEN - 1);
-            req->data.modification.new_description[MAX_TITLE_LEN - 1] = '\0';   
 
             // new_client_id
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
-            req->data.modification.new_client_id = atoi(token);    
+            req->data.Agent_query.mod.new_client_id = atoi(token);    
 
             // new_priority
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
-            req->data.modification.new_priority = atoi(token);    
+            req->data.Agent_query.mod.new_priority = atoi(token);    
 
             // new_status
             token = strtok_r(rest, "|", &rest);
             if (!token) return -1;
-            req->data.modification.new_status = atoi(token);    
+            req->data.Agent_query.mod.new_status = atoi(token);    
 
+            
             break;
         default:
             return -1;
@@ -251,7 +229,3 @@ int deserialize_response(const char* buffer, ResponsePacket* resp){
     return 0;
 }
 
-
-int reset_response(ResponsePacket* resp){
-    resp->type = -1;  
-}

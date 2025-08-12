@@ -1,4 +1,4 @@
-#include "../../Libs/Client/Clients.h"
+#include "../../../Libs/Clients/Client/Client.h"
 
 // The client needs is id as argument on argv
 int main(int argc, char *argv[]) {
