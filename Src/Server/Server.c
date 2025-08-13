@@ -44,11 +44,8 @@ int server_loop(int server_fd)
     struct sockaddr_in client_addr;             // client info compiled by accept
     socklen_t client_len = sizeof(client_addr); // size of the client address structure
 
-    Ticket query; // Ticket used to rapresent the result of a query.
-
     RequestPacket req_packet;
     ResponsePacket resp_packet;
-    int op_result;
 
     signal(SIGCHLD, SIG_IGN); // ignore childs death
 

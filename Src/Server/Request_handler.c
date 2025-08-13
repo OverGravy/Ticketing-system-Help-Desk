@@ -23,12 +23,14 @@ int request_add_ticket(sqlite3 *db, RequestPacket *request, ResponsePacket *resp
 
 int request_sing_in(sqlite3 *db, RequestPacket *request, ResponsePacket *response)
 {
+    char msg[256];
     int op_result;
     if (request->role == ROLE_AGENT)
     {
         op_result = Singing_in(db, request->data.signin.agent_id);
         if (op_result == -1)
         {
+            
             terminal_print(MSG_ERROR, "Error signing in agent", SERVER, "Server");
             response->type = RESP_ERROR;
             strcpy(response->message, "Something went wrong while singing in the agent");
@@ -41,7 +43,9 @@ int request_sing_in(sqlite3 *db, RequestPacket *request, ResponsePacket *respons
         }
         else
         {
-            terminal_print(MSG_SUCCESS, "Agent signed in successfully", SERVER, "Server");
+            sprintf(msg, "Agent %d", request->sender_id);
+            strcat(msg, " sing in succesfully");
+            terminal_print(MSG_SUCCESS, msg, SERVER, "Server");
 
             // prepare the response for the agent
             response->type = RESP_SING_IN_OK;
@@ -52,7 +56,7 @@ int request_sing_in(sqlite3 *db, RequestPacket *request, ResponsePacket *respons
     {
         terminal_print(MSG_INFO, "An anauthorized client tried to log in", SERVER, "Server");
         response->type = RESP_ERROR;
-        strcpy(response->message, "An user cant log as an agent");
+        strcpy(response->message, "An user can't log as an agent");
     }
 
     return 0;
@@ -139,7 +143,7 @@ int request_agent_query(sqlite3 *db, RequestPacket *request, ResponsePacket *res
     else
     {
         response->type = RESP_AUTH_REQUIRED;
-        strcpy(response->message, "No bro sei un client non puoi loggarti");
+        strcpy(response->message, "A cliuent can't log as an agent");
     }
 
     return 0;

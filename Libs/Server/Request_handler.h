@@ -1,3 +1,8 @@
+// this header file contains different functions that handle all the different type of request
+// REQ_SIGNIN,                   
+// REQ_CREATE_TICKET,             
+// REQ_QUERY_AND_MOD
+
 #ifndef __REQUEST_H__
 #define __REQUEST_H__
 
@@ -6,7 +11,7 @@
 #include "../Packets.h"
 #include "../Terminal_com.h"
 
-// this header file contains different funztion that handle all the different type of request
+// this header file contains different function that handle all the different type of request
 // REQ_SIGNIN,                   
 // REQ_CREATE_TICKET,             
 // REQ_QUERY_AND_MOD

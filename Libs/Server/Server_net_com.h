@@ -1,3 +1,5 @@
+// header file containing the functions needed by the server to comunicate using the socket
+
 #ifndef SERVER_NET_H
 #define SERVER_NET_H
 

@@ -1,7 +1,7 @@
 #include "../../Libs/Server/Server.h"
 #include "../../Libs/Terminal_com.h"
 
-int main(int argc, char *argv[]) {
+int main() {
     int server_fd;
 
     terminal_print(MSG_INFO, "Starting server process...", SERVER, "Server");

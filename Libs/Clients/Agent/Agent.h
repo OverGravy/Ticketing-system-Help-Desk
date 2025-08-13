@@ -1,3 +1,4 @@
+// header file containing the agent loop, the core of the agent process
 #ifndef STD_AGENT_H
 #define STD_AGENT_H
 

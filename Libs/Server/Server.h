@@ -1,5 +1,4 @@
 // Server side header file with server logic 
-
 #ifndef SERVER_H
 #define SERVER_H
 

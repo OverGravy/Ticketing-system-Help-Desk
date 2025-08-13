@@ -1,3 +1,5 @@
+// header file containing a function needed for debug and process tracing
+// file common to server, agent and client
 #ifndef __TERMINAL__
 #define __TERMINAL__
 

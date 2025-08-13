@@ -1,3 +1,4 @@
+// header file containing the client loop, the core of the client process
 #ifndef STD_CLIENT_H
 #define STD_CLIENT_H
 

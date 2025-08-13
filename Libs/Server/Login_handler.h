@@ -1,3 +1,4 @@
+// header file containing functions used by th server to sing in an agent and the go-in the same agent
 #ifndef __SERVER_LOGIN_H__
 #define __SERVER_LOGIN_H__
 
@@ -9,12 +10,6 @@
 
 #include "../Terminal_com.h"
 #include "./Db_interface.h"
-
-// struct that memorizes the agent information
-struct Agent {
-    int client_id;
-    int password;
-};
 
 // function that adds the agent to the list and create a password for the user and returns it
 // return 0 if the agent already exist

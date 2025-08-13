@@ -1,3 +1,5 @@
+// header file containing common functions that handle the socket comunication using this specific type of packets
+// those functions are common to the client and the agent process
 #ifndef __CLIENT_COM__
 #define __CLIENT_COM__
 

@@ -1,3 +1,4 @@
+// header file contaning the functions needed to the server to create and operate the database
 #ifndef TICKETS_LIST_H  
 #define TICKETS_LIST_H
 

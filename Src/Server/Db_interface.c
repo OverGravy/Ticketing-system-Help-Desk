@@ -242,7 +242,7 @@ int get_ticket(sqlite3 *db, const TicketQuery *query, Ticket *result) {
 
 
 int get_ticket_and_mod(sqlite3 *db, const TicketQueryAndMod* query_and_mod) {
-    char sql[1024];
+    char sql[2048];
     char where_clause[512] = "";
     char set_clause[512] = "";
     int first = 1;
