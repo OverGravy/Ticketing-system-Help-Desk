@@ -1,4 +1,4 @@
-#include "../../Libs/Clients/Client_net_com.h"
+#include "../../Libs/Client/Client_net_com.h"
 
 int send_request(int server_fd, RequestPacket* req_packet, char* name){
 
@@ -21,7 +21,7 @@ int send_request(int server_fd, RequestPacket* req_packet, char* name){
         terminal_print(MSG_ERROR, "Error serializing the packet", CLIENT, name);
         return -1;
     }
-    
+
     // send the serialized packet
     if (write(server_fd, req_buffer, strlen(req_buffer)) == -1) {
         free(req_buffer);
@@ -91,7 +91,7 @@ int connect_to_server(int *server_fd, struct sockaddr_in *serv_addr){
         if (result == -1)
         { // what a sec and try again
             connection_count++;
-            sleep(1);
+            sleep(0.1);
         }
     } while (connection_count < 15 && result == -1);
 

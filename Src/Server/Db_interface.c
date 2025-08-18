@@ -10,7 +10,7 @@ int init_db(sqlite3 **db, char* db_path) {
     // SQL to create the tickets table if it does not exist
     const char *sql_create_ticket =
         "CREATE TABLE IF NOT EXISTS tickets ("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "id INTEGER PRIMARY KEY,"
         "title TEXT NOT NULL,"
         "description TEXT,"
         "date TEXT,"
@@ -58,6 +58,7 @@ int init_db(sqlite3 **db, char* db_path) {
 
 
 int add_ticket(sqlite3 *db, const Ticket *ticket) {
+   
     // prepare the insert string
     const char *sql_insert =
         "INSERT INTO tickets (title, description, date, priority, status, client_id) "
@@ -202,6 +203,8 @@ int get_ticket(sqlite3 *db, const TicketQuery *query, Ticket *result) {
     if (query->client_id != INT_UNUSED) {
         sqlite3_bind_int(stmt, idx++, query->client_id);
     }
+
+    printf("Executing query: %s\n", sql); // Debugging output
 
     rc = sqlite3_step(stmt);
 

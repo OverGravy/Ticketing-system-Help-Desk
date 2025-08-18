@@ -16,7 +16,6 @@ void terminal_print(MessageType type, const char* message, Role role, const char
     switch (role) {
         case SERVER: name_color = SERVER_COLOR; break;
         case CLIENT: name_color = AGENT_STD_COLOR; break;
-        case AGENT: name_color = AGENT_SPEC_COLOR; break;
         default: name_color = ANSI_RESET; break;
    
     }

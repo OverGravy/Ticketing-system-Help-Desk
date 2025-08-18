@@ -15,9 +15,10 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
-#include "../../Packets.h"
-#include "../../Terminal_com.h"
-#include "../Client_net_com.h"
+#include "../Packets.h"
+#include "./Client_graphics.h"
+#include "../Terminal_com.h"
+#include "./Client_net_com.h"
 
 #define DEFAULT_PORT 1025
 

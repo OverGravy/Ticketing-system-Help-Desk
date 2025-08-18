@@ -38,6 +38,7 @@ int server_start(int port)
 
 int server_loop(int server_fd)
 {
+    int ticket_counter = 0;                     // count all the ticket recived 
 
     int client_fd;                              // client file descriptor
     sqlite3 *db;                                // database needed to store tickets
@@ -92,12 +93,33 @@ int server_loop(int server_fd)
             switch (req_packet.type)
             {
             case REQ_CREATE_TICKET:
-               
-                request_add_ticket(db, &req_packet, &resp_packet);
+
+                // check if the request is valid
+                if (req_packet.data.new_ticket.priority == INT_UNUSED ||
+                    !strcmp(req_packet.data.new_ticket.title, STR_UNUSED) ||
+                    !strcmp(req_packet.data.new_ticket.description, STR_UNUSED))
+                {
+                    terminal_print(MSG_ERROR, "Invalid request for ticket creation", SERVER, "Server");
+                    resp_packet.type = RESP_ERROR;
+                    strcpy(resp_packet.message, "Invalid request for ticket creation");
+                    break;
+                }
+                
+                // add the ticket to the database
+                request_add_ticket(db, ticket_counter, &req_packet, &resp_packet);
+                ticket_counter ++; // increment the number of ticket present 
                     
                 break;
 
             case REQ_SIGNIN:
+
+                // check if the request is valid
+                if (req_packet.sender_id < 0 ){
+                    terminal_print(MSG_ERROR, "Invalid request for sing-in", SERVER, "Server");
+                    resp_packet.type = RESP_ERROR;
+                    strcpy(resp_packet.message, "Invalid request for sing-in");
+                    break;
+                }
 
                 request_sing_in(db, &req_packet, &resp_packet);
               
@@ -105,10 +127,34 @@ int server_loop(int server_fd)
 
             case REQ_QUERY:
 
+                // check if the request is valid
+                if (req_packet.data.Client_query.ticket_id == INT_UNUSED &&
+                    req_packet.data.Client_query.client_id == INT_UNUSED &&
+                    !strcmp(req_packet.data.Client_query.title, STR_UNUSED) &&
+                    !strcmp(req_packet.data.Client_query.description, STR_UNUSED))
+                {
+                    terminal_print(MSG_ERROR, "Invalid request for client query", SERVER, "Server");
+                    resp_packet.type = RESP_ERROR;
+                    strcpy(resp_packet.message, "Invalid request for client query");
+                    break;
+                }
+
                 request_client_query(db, &req_packet, &resp_packet);
                 
                 break;
             case REQ_QUERY_AND_MOD:
+
+                // check if the request is valid
+                if (req_packet.data.Agent_query.filters.ticket_id == INT_UNUSED &&
+                    req_packet.data.Agent_query.filters.client_id == INT_UNUSED &&
+                    !strcmp(req_packet.data.Agent_query.filters.title, STR_UNUSED) &&
+                    !strcmp(req_packet.data.Agent_query.filters.description, STR_UNUSED))
+                {
+                    terminal_print(MSG_ERROR, "Invalid request for agent query and modification", SERVER, "Server");
+                    resp_packet.type = RESP_ERROR;
+                    strcpy(resp_packet.message, "Invalid request for agent query and modification");
+                    break;
+                }
 
                 request_agent_query(db, &req_packet, &resp_packet);
 
@@ -137,6 +183,9 @@ int server_loop(int server_fd)
         else
         {
             close(client_fd);
+
+
+
         }
     }
 

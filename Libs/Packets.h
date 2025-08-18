@@ -20,13 +20,6 @@
 #define INT_UNUSED -1
 #define STR_UNUSED "-"
 
-// Define the users possible roles
-typedef enum {
-    ROLE_CLIENT,
-    ROLE_AGENT
-} UserRole;
-
-
 // Define the tickets possible status
 typedef enum {
     STATUS_OPEN,
@@ -55,26 +48,14 @@ typedef enum {
 } ResponseType;
 
 
-// Define a structure that rappresent a request to sign in
-typedef struct {
-    int agent_id;
-} SingInRequest;
-
-
-// Define a structure that rappresent a specific request for login
-typedef struct {         
-    int pwd;                   
-} LoginRequest;
-
-
 // Define the structure to rappresent a ticket
 typedef struct {
     int id;                          // the id will be assigned by the server
     char title[MAX_TITLE_LEN];
     char description[MAX_DESC_LEN];
     char date[11];                   // date in format dd/mm/yyyy will be put by the server
-    int priority;
-    TicketStatus status;
+    int priority;                    // 0 if unsetted by the client
+    TicketStatus status;             // the state will be open and put by the server as a default 
     int client_id;                    
 } Ticket;
 
@@ -106,10 +87,8 @@ typedef struct{
 // Define a structure that rappresent a request from the client to the server
 typedef struct {
     RequestType type;
-    UserRole role;
     int sender_id;
     union {
-        SingInRequest signin;                 // sing-in accesable by the agent
         Ticket new_ticket;                    // possibility to add ticket accesable by the client
         TicketQuery Client_query;             // Query accessable by the client
         TicketQueryAndMod Agent_query;        // Query accessable by the agent
