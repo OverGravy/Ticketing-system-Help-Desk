@@ -96,11 +96,11 @@ int ticket_graphics(RequestPacket *request, Graphical_struct *client_struct)
         BeginDrawing();
         ClearBackground(COLOR_BG);
 
-        // --- Layout base ---
+        // base layout
         Vector2 startPos = {50, 50};
         int spacing = client_struct->dimensions.textBoxHeight + 20;
 
-        // --- Titolo schermata ---
+        // screen title
         draw_label("New Ticket:",
                    client_struct->font_pointer,
                    startPos,
@@ -108,7 +108,7 @@ int ticket_graphics(RequestPacket *request, Graphical_struct *client_struct)
 
         startPos.y += client_struct->font_sizes.titleFontSize + 35;
 
-        // --- Definizione campi ---
+        // field definitions
         struct
         {
             const char *label;
@@ -120,7 +120,7 @@ int ticket_graphics(RequestPacket *request, Graphical_struct *client_struct)
             {"Description", descriptionStr, sizeof(descriptionStr) - 1, &lenDesc},
             {"Priority", priorityStr, sizeof(priorityStr) - 1, &lenPriority}};
 
-        // --- Ciclo di disegno campi ---
+        // Draw each field
         for (int i = 0; i < 3; i++)
         {
             Vector2 pos = {startPos.x, startPos.y + i * spacing};
@@ -133,7 +133,7 @@ int ticket_graphics(RequestPacket *request, Graphical_struct *client_struct)
                           client_struct,
                           &box);
 
-            // Attivazione textbox su click
+            // catch mouse click to activate text box
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
             {
                 Vector2 mp = GetMousePosition();
@@ -141,7 +141,7 @@ int ticket_graphics(RequestPacket *request, Graphical_struct *client_struct)
                     activeTextBox = i;
             }
 
-            // Input da tastiera
+            // handle keyboard input
             if (activeTextBox == i)
             {
                 int key = GetCharPressed();
@@ -162,7 +162,7 @@ int ticket_graphics(RequestPacket *request, Graphical_struct *client_struct)
             }
         }
 
-        // --- Bottone SEND ---
+        // send button
         Rectangle sendBtn = {
             startPos.x + client_struct->dimensions.labelWidth +
                 client_struct->dimensions.textBoxWidth -
@@ -209,7 +209,7 @@ int req_type_graphics(RequestPacket *request, Graphical_struct *g_struct)
         int screenW = GetScreenWidth();
         int screenH = GetScreenHeight();
 
-        // Font sizes (aggiornati ogni frame per gestire resize)
+        // Set the dimensions of the buttons based on screen size
         g_struct->font_sizes.menuButtonFontSize = screenH / 20;
         int titleFontSize = screenH / 15;
 
@@ -218,7 +218,7 @@ int req_type_graphics(RequestPacket *request, Graphical_struct *g_struct)
 
         if (!started)
         {
-            // Messaggio iniziale
+            // first message to start the selection
             const char *startMsg = "Press SPACE to select request type";
             Vector2 textSize = MeasureTextEx(g_struct->font_pointer, startMsg,
                                              g_struct->font_sizes.menuButtonFontSize, 1);
@@ -234,7 +234,7 @@ int req_type_graphics(RequestPacket *request, Graphical_struct *g_struct)
         }
         else
         {
-            // Titolo
+            // title of the selection screen
             const char *title = "Select Request Type";
             Vector2 titleSize = MeasureTextEx(g_struct->font_pointer, title, titleFontSize, 1);
 
@@ -243,10 +243,10 @@ int req_type_graphics(RequestPacket *request, Graphical_struct *g_struct)
                        (Vector2){(screenW - titleSize.x) / 2, screenH / 10},
                        titleFontSize, BLACK);
 
-            // Spaziatura verticale
+            // vertical spacing between buttons
             int spacing = g_struct->dimensions.menuButtonHeight / 2;
 
-            // Posizioni dei bottoni
+            // buttons layout
             float centerX = (screenW - g_struct->dimensions.menuButtonWidth) / 2;
             float startY = screenH / 4;
 
@@ -267,11 +267,11 @@ int req_type_graphics(RequestPacket *request, Graphical_struct *g_struct)
             const char *labels[4] = {"New ticket", "Query", "Sign in", "Query & Mod"};
             int types[4] = {REQ_CREATE_TICKET, REQ_QUERY, REQ_SIGNIN, REQ_QUERY_AND_MOD};
 
-            // Disegno bottoni
+            // draw buttons
             for (int i = 0; i < 4; i++)
                 draw_button(labels[i], g_struct, &buttons[i], g_struct->font_sizes.menuButtonFontSize);
 
-            // Gestione click
+            // click handling
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
             {
                 Vector2 mp = GetMousePosition();

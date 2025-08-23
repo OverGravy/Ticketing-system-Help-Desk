@@ -1,9 +1,11 @@
 #include "../../Libs/Server/Db_interface.h"
 
-int init_db(sqlite3 **db, char* db_path) {
+int init_db(sqlite3 **db, char *db_path)
+{
     // Open the database file
     int rc = sqlite3_open(db_path, db);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         return -1; // Failed to open database
     }
 
@@ -32,21 +34,24 @@ int init_db(sqlite3 **db, char* db_path) {
 
     // Execute tickets table creation
     rc = sqlite3_exec(*db, sql_create_ticket, 0, 0, &errMsg);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         sqlite3_free(errMsg);
         return rc; // Error creating tickets table
     }
 
     // Execute agents table drop
     rc = sqlite3_exec(*db, sql_drop_agent, 0, 0, &errMsg);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         sqlite3_free(errMsg);
         return rc; // Error dropping agents table
     }
 
     // Execute agents table creation
     rc = sqlite3_exec(*db, sql_create_agent, 0, 0, &errMsg);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         sqlite3_free(errMsg);
         return rc; // Error creating agents table
     }
@@ -55,10 +60,9 @@ int init_db(sqlite3 **db, char* db_path) {
     return rc;
 }
 
+int add_ticket(sqlite3 *db, const Ticket *ticket)
+{
 
-
-int add_ticket(sqlite3 *db, const Ticket *ticket) {
-   
     // prepare the insert string
     const char *sql_insert =
         "INSERT INTO tickets (title, description, date, priority, status, client_id) "
@@ -66,8 +70,9 @@ int add_ticket(sqlite3 *db, const Ticket *ticket) {
 
     sqlite3_stmt *stmt;
     int rc = sqlite3_prepare_v2(db, sql_insert, -1, &stmt, NULL);
-    if (rc != SQLITE_OK) {
-        return rc;  // retun the error in the preparation
+    if (rc != SQLITE_OK)
+    {
+        return rc; // retun the error in the preparation
     }
 
     // adding the fields to populate the insert
@@ -85,41 +90,46 @@ int add_ticket(sqlite3 *db, const Ticket *ticket) {
     sqlite3_finalize(stmt);
 
     // see the result
-    if (rc != SQLITE_DONE) {
-        return rc;  // errore durante l'esecuzione
+    if (rc != SQLITE_DONE)
+    {
+        return rc; // errore durante l'esecuzione
     }
 
-    return SQLITE_OK;  // successo
+    return SQLITE_OK; // successo
 }
 
-
-int add_agent(sqlite3 *db, int agent_id, int pwd) {
+int add_agent(sqlite3 *db, int agent_id, int pwd)
+{
     const char *sql = "INSERT INTO agents (id, password) VALUES (?, ?);";
     sqlite3_stmt *stmt;
     int rc;
 
     // Prepare the SQL statement
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         return rc; // Failed to prepare statement
     }
 
     // Bind parameters
     rc = sqlite3_bind_int(stmt, 1, agent_id); // Bind agent_id to first '?'
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         sqlite3_finalize(stmt);
         return rc;
     }
 
     rc = sqlite3_bind_int(stmt, 2, pwd); // Bind password to second '?'
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         sqlite3_finalize(stmt);
         return rc;
     }
 
     // Execute the statement
     rc = sqlite3_step(stmt);
-    if (rc != SQLITE_DONE) {
+    if (rc != SQLITE_DONE)
+    {
         sqlite3_finalize(stmt);
         return rc; // Failed to execute insertion
     }
@@ -129,42 +139,50 @@ int add_agent(sqlite3 *db, int agent_id, int pwd) {
     return SQLITE_OK; // Success
 }
 
-int get_agent_password(sqlite3 *db, int agent_id, int *pwd_out) {
+int get_agent_password(sqlite3 *db, int agent_id, int *pwd_out)
+{
     const char *sql = "SELECT password FROM agents WHERE id = ?;";
     sqlite3_stmt *stmt;
     int rc;
 
     // Prepare the SQL statement
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         return rc; // Failed to prepare statement
     }
 
     // Bind agent_id parameter
     rc = sqlite3_bind_int(stmt, 1, agent_id);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         sqlite3_finalize(stmt);
         return rc; // Failed to bind parameter
     }
 
     // Execute the query
     rc = sqlite3_step(stmt);
-    if (rc == SQLITE_ROW) {
+    if (rc == SQLITE_ROW)
+    {
         // Retrieve the password from the result
         *pwd_out = sqlite3_column_int(stmt, 0);
         sqlite3_finalize(stmt);
         return SQLITE_OK; // Success
-    } else if (rc == SQLITE_DONE) {
+    }
+    else if (rc == SQLITE_DONE)
+    {
         sqlite3_finalize(stmt);
         return SQLITE_NOTFOUND; // No agent found with that id
-    } else {
+    }
+    else
+    {
         sqlite3_finalize(stmt);
         return rc; // Some other SQLite error
     }
 }
 
-
-int get_ticket(sqlite3 *db, const TicketQuery *query, Ticket *result) {
+int get_ticket(sqlite3 *db, const TicketQuery *query, Ticket *result)
+{
     char sql[512] = "SELECT id, title, description, date, priority, status, client_id FROM tickets WHERE 1=1";
 
     // Add conditions dynamically
@@ -172,35 +190,39 @@ int get_ticket(sqlite3 *db, const TicketQuery *query, Ticket *result) {
         strncat(sql, " AND id = ?", sizeof(sql) - strlen(sql) - 1);
     if (strcmp(query->title, STR_UNUSED) != 0)
         strncat(sql, " AND title LIKE ?", sizeof(sql) - strlen(sql) - 1);
-    if (strcmp(query->description, STR_UNUSED)!= 0)
+    if (strcmp(query->description, STR_UNUSED) != 0)
         strncat(sql, " AND description LIKE ?", sizeof(sql) - strlen(sql) - 1);
     if (query->client_id != INT_UNUSED)
         strncat(sql, " AND client_id = ?", sizeof(sql) - strlen(sql) - 1);
 
-
     sqlite3_stmt *stmt;
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         return rc;
     }
 
     int idx = 1;
-    if (query->ticket_id != INT_UNUSED) {
+    if (query->ticket_id != INT_UNUSED)
+    {
         sqlite3_bind_int(stmt, idx++, query->ticket_id);
     }
-    if (strcmp(query->title, STR_UNUSED)!=0) {
+    if (strcmp(query->title, STR_UNUSED) != 0)
+    {
         char title_like[256];
         snprintf(title_like, sizeof(title_like), "%%%s%%", query->title);
         sqlite3_bind_text(stmt, idx++, title_like, -1, SQLITE_TRANSIENT);
     }
-    if (strcmp(query->description, STR_UNUSED)!= 0) {
+    if (strcmp(query->description, STR_UNUSED) != 0)
+    {
         char desc_like[256];
         snprintf(desc_like, sizeof(desc_like), "%%%.*s%%",
-                 (int)(sizeof(desc_like) - 3), 
+                 (int)(sizeof(desc_like) - 3),
                  query->description);
         sqlite3_bind_text(stmt, idx++, desc_like, -1, SQLITE_TRANSIENT);
     }
-    if (query->client_id != INT_UNUSED) {
+    if (query->client_id != INT_UNUSED)
+    {
         sqlite3_bind_int(stmt, idx++, query->client_id);
     }
 
@@ -208,22 +230,25 @@ int get_ticket(sqlite3 *db, const TicketQuery *query, Ticket *result) {
 
     rc = sqlite3_step(stmt);
 
-
     // Populate result struct
-    if (rc == SQLITE_ROW) {
+    if (rc == SQLITE_ROW)
+    {
         result->id = sqlite3_column_int(stmt, 0);
 
         const unsigned char *text;
         text = sqlite3_column_text(stmt, 1);
-        if (text) strncpy(result->title, (const char*)text, sizeof(result->title));
+        if (text)
+            strncpy(result->title, (const char *)text, sizeof(result->title));
         result->title[sizeof(result->title) - 1] = '\0';
 
         text = sqlite3_column_text(stmt, 2);
-        if (text) strncpy(result->description, (const char*)text, sizeof(result->description));
+        if (text)
+            strncpy(result->description, (const char *)text, sizeof(result->description));
         result->description[sizeof(result->description) - 1] = '\0';
 
         text = sqlite3_column_text(stmt, 3);
-        if (text) strncpy(result->date, (const char*)text, sizeof(result->date));
+        if (text)
+            strncpy(result->date, (const char *)text, sizeof(result->date));
         result->date[sizeof(result->date) - 1] = '\0';
 
         result->priority = sqlite3_column_int(stmt, 4);
@@ -233,18 +258,20 @@ int get_ticket(sqlite3 *db, const TicketQuery *query, Ticket *result) {
         sqlite3_finalize(stmt);
         return SQLITE_OK;
     }
-    else if (rc == SQLITE_DONE) {
+    else if (rc == SQLITE_DONE)
+    {
         sqlite3_finalize(stmt);
         return SQLITE_DONE;
     }
-    else {
+    else
+    {
         sqlite3_finalize(stmt);
         return rc;
     }
 }
 
-
-int get_ticket_and_mod(sqlite3 *db, const TicketQueryAndMod* query_and_mod) {
+int get_ticket_and_mod(sqlite3 *db, const TicketQueryAndMod *query_and_mod)
+{
     char sql[2048];
     char where_clause[512] = "";
     char set_clause[512] = "";
@@ -253,22 +280,26 @@ int get_ticket_and_mod(sqlite3 *db, const TicketQueryAndMod* query_and_mod) {
     int rc;
 
     // ---- Build WHERE clause based on filters ----
-    if (query_and_mod->filters.ticket_id != INT_UNUSED) {
+    if (query_and_mod->filters.ticket_id != INT_UNUSED)
+    {
         strcat(where_clause, first ? "WHERE " : " AND ");
         strcat(where_clause, "id = ?");
         first = 0;
     }
-    if (strcmp(query_and_mod->filters.title, STR_UNUSED) != 0) {
+    if (strcmp(query_and_mod->filters.title, STR_UNUSED) != 0)
+    {
         strcat(where_clause, first ? "WHERE " : " AND ");
         strcat(where_clause, "title = ?");
         first = 0;
     }
-    if (strcmp(query_and_mod->filters.description, STR_UNUSED) != 0) {
+    if (strcmp(query_and_mod->filters.description, STR_UNUSED) != 0)
+    {
         strcat(where_clause, first ? "WHERE " : " AND ");
         strcat(where_clause, "description = ?");
         first = 0;
     }
-    if (query_and_mod->filters.client_id != INT_UNUSED) {
+    if (query_and_mod->filters.client_id != INT_UNUSED)
+    {
         strcat(where_clause, first ? "WHERE " : " AND ");
         strcat(where_clause, "client_id = ?");
         first = 0;
@@ -276,25 +307,29 @@ int get_ticket_and_mod(sqlite3 *db, const TicketQueryAndMod* query_and_mod) {
 
     // ---- Build SET clause for updates ----
     int first_set = 1;
-    
-    if (query_and_mod->mod.new_client_id != INT_UNUSED) {
+
+    if (query_and_mod->mod.new_client_id != INT_UNUSED)
+    {
         strcat(set_clause, first_set ? "" : ", ");
         strcat(set_clause, "client_id = ?");
         first_set = 0;
     }
-    if (query_and_mod->mod.new_priority != INT_UNUSED) {
+    if (query_and_mod->mod.new_priority != INT_UNUSED)
+    {
         strcat(set_clause, first_set ? "" : ", ");
         strcat(set_clause, "priority = ?");
         first_set = 0;
     }
-    if (query_and_mod->mod.new_status != INT_UNUSED) {
+    if (query_and_mod->mod.new_status != INT_UNUSED)
+    {
         strcat(set_clause, first_set ? "" : ", ");
         strcat(set_clause, "status = ?");
         first_set = 0;
     }
 
     // ---- If no SET fields, return error ----
-    if (strlen(set_clause) == 0) {
+    if (strlen(set_clause) == 0)
+    {
         return -1; // nothing to update
     }
 
@@ -303,7 +338,8 @@ int get_ticket_and_mod(sqlite3 *db, const TicketQueryAndMod* query_and_mod) {
 
     // ---- Prepare statement ----
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         return rc;
     }
 
@@ -330,13 +366,15 @@ int get_ticket_and_mod(sqlite3 *db, const TicketQueryAndMod* query_and_mod) {
 
     // ---- Execute update ----
     rc = sqlite3_step(stmt);
-    if (rc != SQLITE_DONE) {
+    if (rc != SQLITE_DONE)
+    {
         sqlite3_finalize(stmt);
         return rc; // error during update
     }
 
     // ---- Check if any row was updated ----
-    if (sqlite3_changes(db) == 0) {
+    if (sqlite3_changes(db) == 0)
+    {
         sqlite3_finalize(stmt);
         return SQLITE_NOTFOUND; // no matching ticket found
     }
@@ -345,16 +383,17 @@ int get_ticket_and_mod(sqlite3 *db, const TicketQueryAndMod* query_and_mod) {
     return SQLITE_OK; // success
 }
 
-
-
-int close_database(sqlite3 *db) {
-    if (db == NULL) {
-        return -1; // Database wasn't opend 
+int close_database(sqlite3 *db)
+{
+    if (db == NULL)
+    {
+        return -1; // Database wasn't opend
     }
 
     int rc = sqlite3_close(db);
-    if (rc != SQLITE_OK) {
-        return rc;  // error while closing the database
+    if (rc != SQLITE_OK)
+    {
+        return rc; // error while closing the database
     }
 
     return SQLITE_OK; // closure happend succesfully

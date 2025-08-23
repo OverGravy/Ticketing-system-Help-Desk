@@ -1,7 +1,6 @@
 // header file that describe packets configuration.
 // the application using 2 type of packets: request and response
 // than this file implemnts the serialize and deserialize functions needed to send them trought the socket
-
 #ifndef __PACKET_H__
 #define __PACKET_H__
 

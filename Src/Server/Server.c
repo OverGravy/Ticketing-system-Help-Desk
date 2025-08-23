@@ -38,7 +38,7 @@ int server_start(int port)
 
 int server_loop(int server_fd)
 {
-    int ticket_counter = 0;                     // count all the ticket recived 
+    int ticket_counter = 0; // count all the ticket recived
 
     int client_fd;                              // client file descriptor
     sqlite3 *db;                                // database needed to store tickets
@@ -104,17 +104,18 @@ int server_loop(int server_fd)
                     strcpy(resp_packet.message, "Invalid request for ticket creation");
                     break;
                 }
-                
+
                 // add the ticket to the database
                 request_add_ticket(db, ticket_counter, &req_packet, &resp_packet);
-                ticket_counter ++; // increment the number of ticket present 
-                    
+                ticket_counter++; // increment the number of ticket present
+
                 break;
 
             case REQ_SIGNIN:
 
                 // check if the request is valid
-                if (req_packet.sender_id < 0 ){
+                if (req_packet.sender_id < 0)
+                {
                     terminal_print(MSG_ERROR, "Invalid request for sing-in", SERVER, "Server");
                     resp_packet.type = RESP_ERROR;
                     strcpy(resp_packet.message, "Invalid request for sing-in");
@@ -122,7 +123,7 @@ int server_loop(int server_fd)
                 }
 
                 request_sing_in(db, &req_packet, &resp_packet);
-              
+
                 break;
 
             case REQ_QUERY:
@@ -140,7 +141,7 @@ int server_loop(int server_fd)
                 }
 
                 request_client_query(db, &req_packet, &resp_packet);
-                
+
                 break;
             case REQ_QUERY_AND_MOD:
 
@@ -183,9 +184,6 @@ int server_loop(int server_fd)
         else
         {
             close(client_fd);
-
-
-
         }
     }
 
@@ -199,4 +197,3 @@ int server_loop(int server_fd)
 
     return 0;
 }
-

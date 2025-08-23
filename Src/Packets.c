@@ -104,10 +104,10 @@ int deserialize_request(const char *buffer, RequestPacket *req)
     switch (req->type)
     {
 
-    case REQ_SIGNIN: // Deserialize the sing in request 
+    case REQ_SIGNIN: // Deserialize the sing in request
 
-        return 0;  // nothing special to do 
-        
+        return 0; // nothing special to do
+
         break;
 
     case REQ_CREATE_TICKET: // Deserialize the new ticket request
@@ -156,7 +156,7 @@ int deserialize_request(const char *buffer, RequestPacket *req)
         if (!token)
             return -1;
         req->data.Client_query.client_id = atoi(token); // Get the client id
-        
+
         break;
 
     case REQ_QUERY_AND_MOD: // Deserialize the priority ticket request
@@ -219,8 +219,6 @@ int deserialize_request(const char *buffer, RequestPacket *req)
     default:
         return -1;
     }
-
-    
 
     return 0; // Success
 }

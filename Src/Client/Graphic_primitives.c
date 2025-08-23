@@ -11,11 +11,11 @@ void draw_text_box(const char *label, const char *text, Vector2 position,
 {
 
 
-    // --- draw label ---
+    // draw the label
     DrawTextEx(g_struct->font_pointer, label,  (Vector2){position.x, position.y + (g_struct->dimensions.textBoxHeight - g_struct->font_sizes.labelFontSize) / 2}, 
                g_struct->font_sizes.labelFontSize, 1, COLOR_LABEL);
 
-    // --- calculate box position ---
+    // calculate the rectangle for the text box
     Rectangle box = {
         position.x + g_struct->dimensions.labelWidth,
         position.y,
@@ -42,11 +42,11 @@ void draw_text_box(const char *label, const char *text, Vector2 position,
 
 void draw_button(const char *label, Graphical_struct *g_struct, Rectangle *button, int textSize)
 {
-    // --- sfondo e bordo ---
+    // background and border
     DrawRectangleRec(*button, COLOR_BUTTON_BG);
     DrawRectangleLinesEx(*button, 2, COLOR_BUTTON_BORDER);
 
-    // --- testo centrato nel bottone ---
+    // central text 
     int fontSize = textSize;
     Vector2 txtSize = MeasureTextEx(g_struct->font_pointer, label, fontSize, 1);
 
