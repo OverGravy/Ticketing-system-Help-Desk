@@ -9,6 +9,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
     // operation result
     int op_result;
 
+    bool cloose_program = false;
+
     // server info
     int server_fd;
     struct sockaddr_in server_addr;
@@ -37,7 +39,7 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
         return -1;
     }
 
-    while (1)
+    while (!cloose_program)
     {
 
         // CLIENT REQUEST OPERATION STUB
@@ -49,8 +51,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
         if (op_result == 1)
         {
             terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-            close(server_fd);
-            return 0;
+            cloose_program = true;
+            continue;
         }
 
         // call the right graphics and the send the requestS
@@ -61,12 +63,14 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
             // call the graphical function
             op_result = ticket_graphics(&req_pack, &client_graphics);
 
+            req_pack.data.new_ticket.client_id = id; // set the client id as the sender id
+
             // check for any error
             if (op_result == 1)
             {
                 terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-                close(server_fd);
-                return 0;
+                cloose_program = true;
+                continue;
             }
 
             // check if everithing have been compilated correctly
@@ -78,8 +82,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
                 if (op_result == 1)
                 {
                     terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-                    close(server_fd);
-                    return 0;
+                    cloose_program = true;
+                    continue;
                 }
 
                 continue; // skip the rest and retun to the decision menu
@@ -94,8 +98,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
             if (op_result == 1)
             {
                 terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-                close(server_fd);
-                return 0;
+                cloose_program = true;
+                continue;
             }
 
             // check if any parameter have been set as filter
@@ -111,8 +115,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
                 if (op_result == 1)
                 {
                     terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-                    close(server_fd);
-                    return 0;
+                    cloose_program = true;
+                    continue;
                 }
 
                 // in other case no request send
@@ -129,8 +133,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
             if (op_result == 1)
             {
                 terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-                close(server_fd);
-                return 0;
+                cloose_program = true;
+                continue;
             }
 
             // check if any parameter have been set as filter
@@ -146,8 +150,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
                 if (op_result == 1)
                 {
                     terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-                    close(server_fd);
-                    return 0;
+                    cloose_program = true;
+                    continue;
                 }
 
                 // in other case no request send
@@ -161,8 +165,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
             if (op_result == 1)
             {
                 terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-                close(server_fd);
-                return 0;
+                cloose_program = true;
+                continue;
             }
 
             // check if the password have been insert
@@ -175,8 +179,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
                 if (op_result == 1)
                 {
                     terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-                    close(server_fd);
-                    return 0;
+                    cloose_program = true;
+                    continue;
                 }
 
                 // in other case no request need to be send send
@@ -185,7 +189,7 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
 
             if (req_pack.data.Agent_query.mod.new_client_id == INT_UNUSED &&
                 req_pack.data.Agent_query.mod.new_priority == INT_UNUSED &&
-                req_pack.data.Agent_query.mod.new_status == INT_UNUSED)
+                req_pack.data.Agent_query.mod.new_status == (TicketStatus)INT_UNUSED)
             {
                 terminal_print(MSG_ERROR, "No modification applied to the query", CLIENT, name);
                 op_result = error_graphics("At least modifier filter must be applied", &client_graphics);
@@ -194,8 +198,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
                 if (op_result == 1)
                 {
                     terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-                    close(server_fd);
-                    return 0;
+                    cloose_program = true;
+                    continue;
                 }
 
                 // in other case no request send
@@ -215,19 +219,18 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
         {
             terminal_print(MSG_ERROR, "Server conncetion went timeup", CLIENT, name);
             op_result = error_graphics("Unable to connect to the server", &client_graphics);
-            
+
             // case user close window there
             if (op_result == 1)
             {
                 terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-                close(server_fd);
-                return 0;
+                cloose_program = true;
+                continue;
             }
-            
+
             // in other case no request send
             continue;
         }
-        
 
         // send the request
         if (send_request(server_fd, &req_pack, name) == -1)
@@ -256,8 +259,8 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
         if (op_result == 1)
         {
             terminal_print(MSG_INFO, "User terminated the program", CLIENT, name);
-            close(server_fd);
-            return 0;
+            cloose_program = true;
+            continue;
         }
 
         close(server_fd);
@@ -267,8 +270,6 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
     close(server_fd);
 
     stop_client_window(&client_graphics, name);
-
-    terminal_print(MSG_SUCCESS, "Client process completed successfully", CLIENT, name);
 
     return 0; // Return 0 to indicate success
 }

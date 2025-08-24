@@ -48,6 +48,18 @@ The **client** allows end users to interact with the server through a simple UI 
 
 ---
 
+# General functioning policy
+
+Considering how general the ticketing system is, the following rules apply:
+
+- Each ticket has a unique ID assigned by the server.
+- Ticket date and time are automatically set by the server when a ticket is created.
+- Clients can create tickets without authentication, but they must register and log in to modify tickets.
+- Ticket queries can be performed without authentication.
+- The server can handle multiple clients simultaneously by forking a new process for each connection.
+
+---
+
 ## Current Features
 
 - The server forks a new process to handle each request.  

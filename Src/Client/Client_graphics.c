@@ -660,7 +660,7 @@ int response_graphics(ResponsePacket *response, char *name, Graphical_struct *g_
         mainMsg = "Failed";
         mainColor = (Color){255, 0, 0, 255}; // red
         terminal_print(MSG_INFO, terminal_message, CLIENT, name);
-        terminal_print(MSG_ERROR, "Query and modification failed", CLIENT, name);
+        terminal_print(MSG_ERROR, "Somenthing went wrong on the request", CLIENT, name);
         break;
     default:
         mainMsg = "";
@@ -692,7 +692,7 @@ int response_graphics(ResponsePacket *response, char *name, Graphical_struct *g_
             Vector2 mainSize = MeasureTextEx(g_struct->font_pointer, mainMsg, g_struct->font_sizes.titleFontSize*2, 1);
             draw_label(mainMsg,
                        g_struct->font_pointer,
-                       (Vector2){(screenW - mainSize.x) / 2, screenH / 4},
+                       (Vector2){(screenW - mainSize.x) / 2, screenH / 6},
                        g_struct->font_sizes.titleFontSize*2, mainColor);
 
         }
@@ -701,7 +701,7 @@ int response_graphics(ResponsePacket *response, char *name, Graphical_struct *g_
         if (response->message[0] != '\0')
         {
             Vector2 msgSize = MeasureTextEx(g_struct->font_pointer, response->message, g_struct->font_sizes.labelFontSize, 1);
-            int yPos = (screenH / 2) + 10;
+            int yPos = (screenH / 4) + 30;
             draw_label(response->message,
                        g_struct->font_pointer,
                        (Vector2){(screenW - msgSize.x) / 2, yPos},
@@ -734,7 +734,6 @@ int response_graphics(ResponsePacket *response, char *name, Graphical_struct *g_
 
 int error_graphics( const char *errorMsg, Graphical_struct *g_struct)
 {
-    char path[256];
 
     bool buttonPressed = false;
 
@@ -811,6 +810,4 @@ void stop_client_window(Graphical_struct *client_struct, char *name)
     {
         CloseWindow();
     }
-
-    terminal_print(MSG_INFO, "Client window closed", CLIENT, name);
 }

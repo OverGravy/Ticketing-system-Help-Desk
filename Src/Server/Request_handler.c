@@ -1,6 +1,6 @@
 #include "../../Libs/Server/Request_handler.h"
 
-int request_add_ticket(sqlite3 *db, int ticket_count, RequestPacket *request, ResponsePacket *response)
+void request_add_ticket(sqlite3 *db, int ticket_count, RequestPacket *request, ResponsePacket *response)
 {
     int op_result;
 
@@ -11,6 +11,9 @@ int request_add_ticket(sqlite3 *db, int ticket_count, RequestPacket *request, Re
     request->data.new_ticket.status = STATUS_OPEN;
 
     // set actual date to the ticket
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    strftime(request->data.new_ticket.date, sizeof(request->data.new_ticket.date), "%d/%m/%Y", t);
 
     // set priotity = 0 if unsetted by the client
     if (request->data.new_ticket.priority == INT_UNUSED)
@@ -25,7 +28,6 @@ int request_add_ticket(sqlite3 *db, int ticket_count, RequestPacket *request, Re
         response->type = RESP_ERROR;
         strcpy(response->message, "Something occurds while adding the ticket on the database");
         terminal_print(MSG_ERROR, "Error inserting ticket inside the database", SERVER, "Server");
-        return -1;
     }
     else
     {
@@ -33,24 +35,28 @@ int request_add_ticket(sqlite3 *db, int ticket_count, RequestPacket *request, Re
         strcpy(response->message, "Everithing went fine");
         terminal_print(MSG_SUCCESS, "Ticket added successfully", SERVER, "Server");
     }
-
-    return 0;
 }
 
-int request_sing_in(sqlite3 *db, RequestPacket *request, ResponsePacket *response)
+void request_sing_in(sqlite3 *db, RequestPacket *request, ResponsePacket *response)
 {
     char msg[256];
     int op_result;
 
-    op_result = Singing_in(db, request->sender_id);
+    // generate a key for the user
+    srand(time(NULL));
+    int pwd = request->sender_id * 12345 + (rand() % 2000 + 1); // even if the id is 0 you have a number that operate as a key
+
+    // add the agent to the db
+    op_result = add_agent(db, request->sender_id, pwd);
+
+    // check the result of the operation
     if (op_result == -1)
     {
-
         terminal_print(MSG_ERROR, "Error signing in Client", SERVER, "Server");
         response->type = RESP_ERROR;
         strcpy(response->message, "Something went wrong while singing in the Client");
     }
-    else if (op_result == 0)
+    else if (op_result == 1)
     {
         terminal_print(MSG_INFO, "Client already signed in", SERVER, "Server");
         response->type = RESP_ERROR;
@@ -64,49 +70,94 @@ int request_sing_in(sqlite3 *db, RequestPacket *request, ResponsePacket *respons
 
         // prepare the response for the agent
         response->type = RESP_SING_IN_OK;
-        snprintf(response->message, sizeof(response->message), "Client passowrd: %d", op_result); // send the key inside the message
+        snprintf(response->message, sizeof(response->message), "Client passowrd: %d", pwd); // send the key inside the message
     }
-
-    return 0;
 }
 
-int request_client_query(sqlite3 *db, RequestPacket *request, ResponsePacket *response)
+void request_client_query(sqlite3 *db, RequestPacket *request, ResponsePacket *response, TicketPile *pile)
 {
-    int op_result;
+    int op_result = get_ticket(db, &request->data.Client_query, pile);
 
-    Ticket query;
+    // clear response message buffer
+    response->message[0] = '\0';
 
-    // result of a find
-    op_result = get_ticket(db, &request->data.Client_query, &query);
+    size_t cap = sizeof(response->message);
+    size_t used = 0;
 
-    // if the function finds it inside the list
-    if (op_result == SQLITE_OK)
+    if (op_result > 0)
     {
-        terminal_print(MSG_SUCCESS, "Ticket succcesfuylly found in database", SERVER, "Server");
         response->type = RESP_QUERY_OK;
-        snprintf(response->message, sizeof(response->message), "Status: %d , Priority: %d ", query.status);
+
+        // write header
+        int n = snprintf(response->message, cap,
+                         "Found %d ticket%s\n",
+                         op_result, (op_result == 1) ? "" : "s");
+
+        if (n < 0)
+            n = 0;
+        if ((size_t)n >= cap)
+        {
+            response->message[cap - 1] = '\0';
+            return; // full buffer, cannot write header
+        }
+        used = (size_t)n;
+
+        // add each ticket to the response message
+        Ticket current_ticket;
+        for (int i = 0; i < op_result; i++)
+        {
+            if (pop_ticket(pile, &current_ticket) != 0)
+            {
+                break; // pop error
+            }
+            
+            // Scrive solo se c'è spazio sufficiente
+            n = snprintf(response->message + used, cap - used,
+                         "Ticket ID: %d  Title: %.100s  Description: %.200s Date: %.20s  Priority: %d  Status: %d  Client ID: %d\n",
+                         current_ticket.id,
+                         current_ticket.title,
+                         current_ticket.description,
+                         current_ticket.date,
+                         current_ticket.priority,
+                         current_ticket.status,
+                         current_ticket.client_id);
+
+            if (n < 0)
+                break;
+
+            // Se la scrittura supera lo spazio residuo, tronca correttamente
+            if ((size_t)n >= cap - used)
+            {
+                response->message[cap - 1] = '\0';
+                break;
+            }
+
+            used += (size_t)n;
+        }
     }
-    else if (op_result == SQLITE_DONE)
+    else if (op_result == 0)
     {
-        terminal_print(MSG_ERROR, "Ticket wasn't found inside the database", SERVER, "Server");
         response->type = RESP_ERROR;
-        strcpy(response->message, "Ticket wasn't find in the database");
+        terminal_print(MSG_INFO, "Client query found no tickets matching the query", SERVER, "Server");
+        strncpy(response->message, "No tickets found matching the query", cap - 1);
+        response->message[cap - 1] = '\0';
     }
     else
     {
-        terminal_print(MSG_ERROR, "An error occured while querying the database", SERVER, "Server");
         response->type = RESP_ERROR;
-        strcpy(response->message, "Somenthing wrong happen while searching the ticket in the database");
+        terminal_print(MSG_ERROR, "Something went wrong while trying to get tickets from the database", SERVER, "Server");
+        strncpy(response->message, "Something went wrong on server side", cap - 1);
+        response->message[cap - 1] = '\0';
     }
-
-    return 0;
 }
 
-int request_agent_query(sqlite3 *db, RequestPacket *request, ResponsePacket *response)
+void request_agent_query(sqlite3 *db, RequestPacket *request, ResponsePacket *response)
 {
     int op_result;
 
-    op_result = Logging_in(db, request->sender_id, request->data.Agent_query.pwd);
+    int table_pwd;
+
+    op_result = get_agent_password(db, request->sender_id, &table_pwd);
     if (op_result == 0)
     {
         // case the agent is logged in corrrectly
@@ -118,33 +169,37 @@ int request_agent_query(sqlite3 *db, RequestPacket *request, ResponsePacket *res
             response->type = RESP_QUERY_MOD_OK;
             strcpy(response->message, "Everithing went fine");
         }
-        else if (op_result == SQLITE_NOTFOUND)
+        else if (op_result == 2)
         {
+            terminal_print(MSG_INFO, "Client query found no tickets matching the query", SERVER, "Server");
             response->type = RESP_ERROR;
-            strcpy(response->message, "Record no found");
+            strcpy(response->message, "No tickets found matching the query");
+        }
+        else if (op_result == 1)
+        {
+            terminal_print(MSG_INFO, "Client query found more than one ticket matching the query", SERVER, "Server");
+            response->type = RESP_ERROR;
+            strcpy(response->message, "More than one ticket found matching the query, impossible to modify\nTry to be more specific with filters");
         }
         else
         {
+            terminal_print(MSG_ERROR, "Something went wrong while trying to get/modify ticket from the database", SERVER, "Server");
             response->type = RESP_ERROR;
             strcpy(response->message, "Something went wrong on server side");
         }
     }
 
-    // case the password is wrong
+    // case agent is not sing in
     else if (op_result == 1)
     {
-        terminal_print(MSG_INFO, "Client tried to lo-in with the wrong password", SERVER, "Server");
+        terminal_print(MSG_INFO, "Client tried to lo-in without sing-in", SERVER, "Server");
         response->type = RESP_AUTH_REQUIRED;
-        strcpy(response->message, "Wrong password");
+        strcpy(response->message, "Client need to sing-in first");
     }
-
-    // errior case
-    else if (op_result == -2)
+    else
     {
-        terminal_print(MSG_ERROR, "Somenthing went wrong while trying to acces the database to get an agent password", SERVER, "Server");
         response->type = RESP_ERROR;
-        strcpy(response->message, " Somenthing went wrong on server side");
+        strcpy(response->message, "Something went wrong on server side");
+        terminal_print(MSG_ERROR, "Something went wrong while trying to get the agent password from the database", SERVER, "Server");
     }
-
-    return 0;
 }

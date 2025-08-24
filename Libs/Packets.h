@@ -11,8 +11,8 @@
 
 #define MAX_TITLE_LEN 64
 #define MAX_DESC_LEN 256
-#define MAX_RESP_MSG_LEN 128
-#define BUFFER_SIZE 1024          // buffer size for response and request
+#define MAX_RESP_MSG_LEN 2048
+#define BUFFER_SIZE 4096        // buffer size for response and request
 
 
 // define needed where a field is unused

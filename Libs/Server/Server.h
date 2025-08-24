@@ -14,7 +14,12 @@
 #include "./Request_handler.h"
 
 #define DEFAULT_PROTOCOL 0
-#define DEFAULT_PORT  1025
+#define DEFAULT_PORT  1024
+
+extern volatile sig_atomic_t stop; // flag to control server loop
+
+// function to handle SIGINT signal for graceful shutdown
+void handle_sigint(int sig);
 
 // funcion that starts the server opening a socket and return the file descriptor
 int server_start(int port);     

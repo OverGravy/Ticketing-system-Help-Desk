@@ -1,5 +1,14 @@
 #include "../../Libs/Server/Server.h"
 
+
+volatile sig_atomic_t stop = 0;  // Definizione della variabile
+
+void handle_sigint(int sig)
+{
+    (void)sig;  // avoid unused parameter warning
+    stop = 1;
+}
+
 int server_start(int port)
 {
 
@@ -45,10 +54,14 @@ int server_loop(int server_fd)
     struct sockaddr_in client_addr;             // client info compiled by accept
     socklen_t client_len = sizeof(client_addr); // size of the client address structure
 
+    TicketPile query_pile;            // pile to store tickets found during queries
+    init_ticket_pile(&query_pile);    // initialize the pile
+
     RequestPacket req_packet;
     ResponsePacket resp_packet;
 
     signal(SIGCHLD, SIG_IGN); // ignore childs death
+    signal(SIGINT, handle_sigint); // handle SIGINT for graceful shutdown
 
     // init the database and catch any possible error while doing it
     if (init_db(&db, "../Db/Tickets.db") != SQLITE_OK)
@@ -61,7 +74,7 @@ int server_loop(int server_fd)
         terminal_print(MSG_INFO, "Database correctly inizialized ...", SERVER, "Server");
     }
 
-    while (1)
+    while (!stop)
     {
 
         // accept new connection
@@ -95,13 +108,12 @@ int server_loop(int server_fd)
             case REQ_CREATE_TICKET:
 
                 // check if the request is valid
-                if (req_packet.data.new_ticket.priority == INT_UNUSED ||
-                    !strcmp(req_packet.data.new_ticket.title, STR_UNUSED) ||
+                if (!strcmp(req_packet.data.new_ticket.title, STR_UNUSED) ||
                     !strcmp(req_packet.data.new_ticket.description, STR_UNUSED))
                 {
                     terminal_print(MSG_ERROR, "Invalid request for ticket creation", SERVER, "Server");
                     resp_packet.type = RESP_ERROR;
-                    strcpy(resp_packet.message, "Invalid request for ticket creation");
+                    strcpy(resp_packet.message, "Invalid request for ticket creation, title and description are required");
                     break;
                 }
 
@@ -140,8 +152,9 @@ int server_loop(int server_fd)
                     break;
                 }
 
-                request_client_query(db, &req_packet, &resp_packet);
-
+                // handle the client query
+                request_client_query(db, &req_packet, &resp_packet, &query_pile);
+            
                 break;
             case REQ_QUERY_AND_MOD:
 
@@ -193,7 +206,10 @@ int server_loop(int server_fd)
         terminal_print(MSG_ERROR, "Something went wrong while closing the tickets database", SERVER, "Server");
     }
 
+    // close socket binding and free the port
     close(server_fd);
+
+    free_ticket_pile(&query_pile);
 
     return 0;
 }

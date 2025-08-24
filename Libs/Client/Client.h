@@ -20,7 +20,7 @@
 #include "../Terminal_com.h"
 #include "./Client_net_com.h"
 
-#define DEFAULT_PORT 1025
+#define DEFAULT_PORT 1024
 
 // function that handle the main agent type client operation
 int client_loop(int id, int port, in_addr_t server_ip_addr);

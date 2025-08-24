@@ -55,6 +55,7 @@ int serialize_request(const RequestPacket *req, char *buffer)
 // Function to serialize a ResponsePacket into a buffer
 int serialize_response(const ResponsePacket *resp, char *buffer)
 {
+
     if (!resp || !buffer || BUFFER_SIZE < 1)
         return -1; // Check for null pointers and buffer size
 
@@ -225,6 +226,7 @@ int deserialize_request(const char *buffer, RequestPacket *req)
 
 int deserialize_response(const char *buffer, ResponsePacket *resp)
 {
+
     if (!buffer || !resp)
     {
         return -1;
