@@ -59,6 +59,6 @@ int response_graphics(ResponsePacket *response, char *name, Graphical_struct *g_
 int error_graphics(const char *errorMsg, Graphical_struct *g_struct);
 
 // function that close thye screen and everithing related to that
-void stop_client_window(Graphical_struct* client_struct, char* name);
+void stop_client_window(Graphical_struct* client_struct);
 
 #endif

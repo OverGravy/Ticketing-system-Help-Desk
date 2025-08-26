@@ -1,8 +1,8 @@
-# Compilatore e flag
+# compiler flags
 CC      = gcc
 CFLAGS  = -Wall -Wextra -pedantic -std=c99 -D_POSIX_C_SOURCE=200809L -g
 
-# Librerie
+# library flags
 RAYLIB_FLAGS = -lraylib -lm -ldl -lpthread -lGL -lrt -lX11
 SQLITE_FLAGS = -lsqlite3
 
@@ -17,29 +17,26 @@ COMMON_OBJ_DIR := $(OBJ_DIR)/Common
 CLIENT_OBJ_DIR := $(OBJ_DIR)/Client
 SERVER_OBJ_DIR := $(OBJ_DIR)/Server
 
-# --- Sorgenti comuni ---
+# common sources and objects
 COMMON_SOURCES := $(shell find $(SRC_DIR) -maxdepth 1 -name '*.c')
 COMMON_OBJECTS := $(patsubst $(SRC_DIR)/%.c, $(COMMON_OBJ_DIR)/%.o, $(COMMON_SOURCES))
 
-# --- Sorgenti comuni dei Clients ---
-CLIENTS_COMMON_SOURCES := $(filter-out $(CLIENT_DIR)/*.c, $(shell find $(SRC_DIR)/Clients -maxdepth 1 -name '*.c'))
-CLIENTS_COMMON_OBJECTS := $(patsubst $(SRC_DIR)/Clients/%.c, $(COMMON_OBJ_DIR)/Clients/%.o, $(CLIENTS_COMMON_SOURCES))
 
-# --- Client ---
+# client 
 CLIENT_MAIN     := $(CLIENT_DIR)/Client_main.c
 CLIENT_MAIN_OBJ := $(CLIENT_OBJ_DIR)/Client_main.o
 CLIENT_SOURCES  := $(filter-out $(CLIENT_MAIN), $(shell find $(CLIENT_DIR) -name '*.c'))
 CLIENT_OBJECTS  := $(patsubst $(CLIENT_DIR)/%.c, $(CLIENT_OBJ_DIR)/%.o, $(CLIENT_SOURCES))
 CLIENT_BIN      := $(BIN_DIR)/Client
 
-# --- Server ---
+# server
 SERVER_MAIN     := $(SERVER_DIR)/Server_main.c
 SERVER_MAIN_OBJ := $(SERVER_OBJ_DIR)/Server_main.o
 SERVER_SOURCES  := $(filter-out $(SERVER_MAIN), $(shell find $(SERVER_DIR) -name '*.c'))
 SERVER_OBJECTS  := $(patsubst $(SERVER_DIR)/%.c, $(SERVER_OBJ_DIR)/%.o, $(SERVER_SOURCES))
 SERVER_BIN      := $(BIN_DIR)/Server
 
-# --- Target finali ---
+# final binaries
 BINARIES := $(CLIENT_BIN) $(SERVER_BIN)
 
 all: $(BINARIES)
@@ -53,7 +50,7 @@ $(SERVER_BIN): $(SERVER_MAIN_OBJ) $(SERVER_OBJECTS) $(COMMON_OBJECTS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(SQLITE_FLAGS)
 
-# --- Compilazione oggetti ---
+# compile
 $(COMMON_OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -70,7 +67,7 @@ $(SERVER_OBJ_DIR)/%.o: $(SERVER_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# --- Utility ---
+# clean
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 

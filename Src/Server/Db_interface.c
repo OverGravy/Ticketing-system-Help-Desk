@@ -9,6 +9,9 @@ int init_db(sqlite3 **db, char *db_path)
         return -1; // Failed to open database
     }
 
+    // set busy timeout to 3 seconds
+    sqlite3_busy_timeout(*db, 3000);
+
     // SQL to create the tickets table if it does not exist
     const char *sql_create_ticket =
         "CREATE TABLE IF NOT EXISTS tickets ("

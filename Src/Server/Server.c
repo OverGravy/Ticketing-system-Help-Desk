@@ -64,7 +64,7 @@ int server_loop(int server_fd)
     signal(SIGINT, handle_sigint); // handle SIGINT for graceful shutdown
 
     // init the database and catch any possible error while doing it
-    if (init_db(&db, "../Db/Tickets.db") != SQLITE_OK)
+    if (init_db(&db, "../Db/Database.db") != SQLITE_OK)
     {
         terminal_print(MSG_ERROR, "Something went wrong while trying to inizialize the database", SERVER, "Server");
         return -1;

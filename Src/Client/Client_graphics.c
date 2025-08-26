@@ -798,7 +798,7 @@ int error_graphics( const char *errorMsg, Graphical_struct *g_struct)
     return -1; // Something went wrong
 }
 
-void stop_client_window(Graphical_struct *client_struct, char *name)
+void stop_client_window(Graphical_struct *client_struct)
 {
     if (client_struct->font_pointer.texture.id != 0)
     {

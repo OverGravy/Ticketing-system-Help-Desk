@@ -269,7 +269,7 @@ int client_loop(int id, int port, in_addr_t server_ip_addr)
     // case it wasn't close before
     close(server_fd);
 
-    stop_client_window(&client_graphics, name);
+    stop_client_window(&client_graphics);
 
     return 0; // Return 0 to indicate success
 }
